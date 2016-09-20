@@ -13,13 +13,13 @@
 (defun code-destroyer-game ()
   "Start playing Code Destroyer."
   (interactive)
-  (setq *cdg-code-buffer* (current-buffer))
-  (switch-to-buffer "cdg")
-  (buffer-disable-undo "cdg")
 
+  (setq *cdg-code-buffer* (current-buffer))
+  (setq *cdg-board-cols* (window-body-width))
+
+  (switch-to-buffer "cdg")
   (setq *cdg-game-buffer* (current-buffer))
-  (setq *cdg-board-cols* (window-total-width))
-  (setq *cdg-board-rows* (- (window-total-height) *cdg-space-margin*))
+  (buffer-disable-undo "cdg")
 
   (code-destroyer-mode)
   (cdg-init))
@@ -45,8 +45,11 @@
 
 (defvar *cdg-score* 0)
 
-(defvar *cdg-space-margin* 7
-  "")
+(defconst *cdg-space-margin* 7
+  "Определяет минимальное начальное расстояние между
+   игровым полем и платформой игрока")
+
+(defconst *cdg-space-sym* ? )
 
 (defvar *cdg-debug* t
   "")
@@ -54,16 +57,19 @@
 
 (defun cdg-up ()
   ""
-  (print "xolcman"))
+  (interactive))
+
 (defun cdg-down ()
   ""
-  (insert "Down"))
+  (interactive))
+
 (defun cdg-left ()
   ""
-  nil)
+  (interactive))
+
 (defun cdg-right ()
   ""
-  nil)
+  (interactive))
 
 (defun cdg-init ()
   (let ((inhibit-read-only t))
@@ -72,7 +78,11 @@
     (cdg-copy-view-part-buffer *cdg-code-buffer*
                                *cdg-game-buffer*
                                *cdg-space-margin*)
-    (cdg-build-game-board *cdg-game-buffer*)))
+    (cdg-build-game-board *cdg-game-buffer*)
+    (setq *cdg-board-rows*
+          (/ (length *cdg-game-board*) *cdg-board-cols*))
+    (erase-buffer)
+    (cdg-draw-game-board *cdg-game-buffer* *cdg-game-board*)))
 
 (defun cdg-get-cell (row col)
   "Get the value in (ROW, COL)."
@@ -113,14 +123,36 @@
   (switch-to-buffer buffer)
   (let ((begin-line nil))
     (beginning-of-buffer)
+    (setq *cdg-game-board* "")
     (while (not (eobp))
       (beginning-of-line)
       (setq begin-line (point))
       (end-of-line)
-      (cdg-debug (buffer-substring-no-properties begin-line (point)))
+      (setq *cdg-game-board*
+            (concat *cdg-game-board*
+                    (cdg-build-game-board-row
+                     (buffer-substring-no-properties begin-line (point))
+                     *cdg-board-cols*)))
       (forward-line 1))))
 
+(defun cdg-build-game-board-row (code-str row-width)
+  (let* ((trim-str (string-trim-right code-str))
+         (str-len (length trim-str)))
+    (if (< str-len row-width)
+        ;; Дополняем строку пробелами до длины row-width
+        (concat trim-str
+                (make-string (- row-width str-len) *cdg-space-sym*))
+        (substring trim-str 0 row-width))))
 
+(defun cdg-draw-game-board (buffer board)
+  (let ((inhibit-read-only t))
+    (dotimes (row *cdg-board-rows*)
+      (let ((line-pos (* row *cdg-board-cols*)))
+      (insert
+       (format "%s\n"
+               (substring board
+                          line-pos
+                          (+ line-pos *cdg-board-cols*))))))))
 
 (defmacro cdg-debug (&rest body)
   "Output debug info, if *cdg-debug* is t"
