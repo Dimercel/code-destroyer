@@ -29,21 +29,22 @@
 
 
 (defvar *cdg-code-buffer* nil
-  "")
+  "Буфер, в которой расположен текст играющий роль игрвого поля")
 
 (defvar *cdg-game-buffer* nil
-  "")
+  "Буфер, в котором происходит сама игра")
 
 (defvar *cdg-game-board* nil
-  "")
+  "Игровое поле. Представляет из себя текст с пробелами")
 
 (defvar *cdg-board-rows* nil
-  "")
+  "Количество строк на игровом поле")
 
 (defvar *cdg-board-cols* nil
-  "")
+  "Количество столбцов на игровом поле")
 
-(defvar *cdg-score* 0)
+(defvar *cdg-score* 0
+  "Количество игровых очков игрока")
 
 (defconst *cdg-space-margin* 7
   "Определяет минимальное начальное расстояние между
@@ -52,7 +53,7 @@
 (defconst *cdg-space-sym* ? )
 
 (defvar *cdg-debug* t
-  "")
+  "Переменная отвечает за режим вывода отладочной ин-ии")
 
 
 (defun cdg-up ()
@@ -72,6 +73,7 @@
   (interactive))
 
 (defun cdg-init ()
+  "Собственно инициализация игры."
   (let ((inhibit-read-only t))
     (erase-buffer)
     (setq-local truncate-lines t)
@@ -120,6 +122,7 @@
     (insert-buffer-substring-no-properties source start finish)))
 
 (defun cdg-build-game-board (buffer)
+  "Создает игровое поле на основе текста буфера."
   (switch-to-buffer buffer)
   (let ((begin-line nil))
     (beginning-of-buffer)
@@ -136,6 +139,8 @@
       (forward-line 1))))
 
 (defun cdg-build-game-board-row (code-str row-width)
+  "Строит одну строку игрового поля на основе текстовой
+   строки. Приводит строку к единой длине row-width"
   (let* ((trim-str (string-trim-right code-str))
          (str-len (length trim-str)))
     (if (< str-len row-width)
