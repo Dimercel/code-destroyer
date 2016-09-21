@@ -43,6 +43,10 @@
 (defvar *cdg-board-cols* nil
   "Количество столбцов на игровом поле")
 
+(defvar *cdg-ball* nil
+  "Игровой мяч. Хранит размеры мяча, текущее положение и
+   вектор направления")
+
 (defvar *cdg-score* 0
   "Количество игровых очков игрока")
 
@@ -52,7 +56,7 @@
 
 (defconst *cdg-space-sym* ? )
 
-(defvar *cdg-debug* t
+(defconst *cdg-debug* t
   "Переменная отвечает за режим вывода отладочной ин-ии")
 
 
@@ -158,6 +162,31 @@
                (substring board
                           line-pos
                           (+ line-pos *cdg-board-cols*))))))))
+
+(defun cdg-make-ball (radius coord direction)
+  (list radius coord (cdg-normalize-2d-vec direction)))
+
+(defun cdg-ball-radius (ball)
+  "Радиус меча. Определяет размер,
+   а соответственно и площадь поражения"
+  (elt ball 0))
+
+(defun cdg-ball-pos (ball)
+  "Собственно координаты центра мяча в
+   двухмерной системе координат"
+  (elt ball 1))
+
+(defun cdg-ball-direct (ball)
+  "Нормализованный вектор-направление
+   движения мяча"
+  (elt ball 2))
+
+(defun cdg-normalize-2d-vec (vec)
+  "Нормализует 2-х мерный вектор"
+  (let* ((x (elt vec 0))
+         (y (elt vec 1))
+         (vec-len (sqrt (+ (x*x) (y*y)))))
+    [(* x vec-len) (* y vec-len)]))
 
 (defmacro cdg-debug (&rest body)
   "Output debug info, if *cdg-debug* is t"
