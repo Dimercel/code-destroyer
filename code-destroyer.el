@@ -90,6 +90,71 @@
     (erase-buffer)
     (cdg-draw-game-board *cdg-game-buffer* *cdg-game-board*)))
 
+(defun cdg-make-char-buffer (rows cols fill-char)
+  "Представляет прямоугольный массив из текстовых символов. Хранится одной большой строкой.
+   ROWS - кол-во строк, COLS - кол-во столбцов, FILL-CHAR - символ-заполнитель, которым
+   будет инициализорован буфер."
+  (list (make-string (* rows cols) fill-char)
+        rows
+        cols))
+
+(defun cdg-buf-row-count (char-buffer)
+  (second char-buffer))
+
+(defun cdg-buf-col-count (char-buffer)
+  (third char-buffer))
+
+(defun cdg-char-buf-size (char-buffer)
+  (* (cdg-buf-row-count char-buffer)
+     (cdg-buf-col-count char-buffer)))
+
+(defun cdg-2d-to-1d-inx (char-buffer row col)
+  "Перевод координат из прямоугольной 2-х мерной,
+   в одномерный индекс. Допускаются только
+   положительные значения."
+  (if (and (>= row 0) (>= col 0))
+      (+ col
+         (* row (cdg-buf-col-count char-buffer)))
+    nil))
+
+(defun cdg-get-char (char-buffer row col)
+  (elt (first char-buffer)
+       (cdg-2d-to-1d-inx char-buffer row col)))
+
+(defun cdg-set-char (char-buffer row col new-value)
+  (aset (first char-buffer)
+        (cdg-2d-to-1d-inx char-buffer row col)
+        new-value))
+
+(defun cdg-get-char-safe (char-buffer row col &optional bad-value)
+  "Безопасная версия cdg-get-char возвращающая BAD-VALUE в случае
+   отсутсвия указанного индекса"
+  (let ((size (cdg-char-buf-size char-buffer))
+        (1d-inx (cdg-2d-to-1d-inx char-buffer row col)))
+    (if (and (not (null 1d-inx))
+             (< 1d-inx size))
+      (elt (first char-buffer) 1d-inx)
+      bad-value)))
+
+(defun cdg-set-char-safe (char-buffer row col new-value)
+  "Безопасная версия cdg-set-char возвращающая NIL в случае
+   отсутсвия указанного индекса. Не присваивает значения в
+   случае не корректного индекса"
+  (let ((size (cdg-char-buf-size char-buffer))
+        (1d-inx (cdg-2d-to-1d-inx char-buffer row col)))
+    (if (and (not (null 1d-inx))
+             (< 1d-inx size))
+        (aset (first char-buffer) 1d-inx new-value)
+      nil)))
+
+
+(defun cdg-get-char-row (char-buffer row)
+  (let* ((start (cdg-2d-to-1d-inx char-buffer row 0))
+         (end   (+ start (cdg-buf-col-count char-buffer))))
+    (if (< row (cdg-buf-row-count char-buffer))
+        (substring (first char-buffer) start end)
+      nil)))
+
 (defun cdg-get-cell (row col)
   "Get the value in (ROW, COL)."
   (elt *cdg-game-board*
