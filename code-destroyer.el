@@ -47,6 +47,10 @@
   "Игровой мяч. Хранит размеры мяча, текущее положение и
    вектор направления")
 
+(defvar *cdg-platform* nil
+  "Игровая платформа которая отбивает мяч. Пользователь
+   управляет платформой, передвигая ее влево или вправо")
+
 (defvar *cdg-score* 0
   "Количество игровых очков игрока")
 
@@ -252,6 +256,18 @@
          (y (elt vec 1))
          (vec-len (sqrt (+ (x*x) (y*y)))))
     [(* x vec-len) (* y vec-len)]))
+
+(defun cdg-make-platform (center-pos size speed)
+  (list center-pos size speed))
+
+(defun cdg-platform-pos (platform)
+  (first platform))
+
+(defun cdg-platform-size (platform)
+  (second platform))
+
+(defun cdg-platform-speed (platform)
+  (third platform))
 
 (defmacro cdg-debug (&rest body)
   "Output debug info, if *cdg-debug* is t"
