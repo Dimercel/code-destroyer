@@ -102,6 +102,36 @@
         rows
         cols))
 
+(defun cdg-to-length (str new-length fill-char)
+  "Приводит строку к указанной длине, добавляя
+   символы-заполнители, либо удаляя не нужные
+   символы с конца."
+  (let ((old-length (length str)))
+    (if (< new-length old-length)
+        (substring str 0 new-length)
+      (concat str
+              (make-string (- new-length old-length)
+                           fill-char)))))
+
+(defun cdg-resize-char-buffer (buffer row-count col-count fill-char)
+  "Изменяет размер символьного буфера. Если размер становится больше,
+   то недостающие позиции заполняются символом-заполнителем"
+  (let ((old-row-count (cdg-buf-row-count buffer))
+        (old-col-count (cdg-buf-col-count buffer))
+        (result-body   ""))
+    ;; сначала приводим все строки к единой длине
+    (dotimes (r old-row-count)
+      (setq result-body
+            (concat result-body
+                    (cdg-to-length (cdg-get-char-row buffer r)
+                                   col-count
+                                   fill-char))))
+    (list (cdg-to-length result-body
+                         (* row-count col-count)
+                         fill-char)
+          row-count
+          col-count)))
+
 (defun cdg-buf-row-count (char-buffer)
   (second char-buffer))
 
@@ -111,6 +141,9 @@
 (defun cdg-char-buf-size (char-buffer)
   (* (cdg-buf-row-count char-buffer)
      (cdg-buf-col-count char-buffer)))
+
+(defun cdg-char-buf-body (buffer)
+  (first buffer))
 
 (defun cdg-2d-to-1d-inx (char-buffer row col)
   "Перевод координат из прямоугольной 2-х мерной,
@@ -122,11 +155,11 @@
     nil))
 
 (defun cdg-get-char (char-buffer row col)
-  (elt (first char-buffer)
+  (elt (cdg-char-buf-body char-buffer)
        (cdg-2d-to-1d-inx char-buffer row col)))
 
 (defun cdg-set-char (char-buffer row col new-value)
-  (aset (first char-buffer)
+  (aset (cdg-char-buf-body char-buffer)
         (cdg-2d-to-1d-inx char-buffer row col)
         new-value))
 
@@ -137,7 +170,7 @@
         (1d-inx (cdg-2d-to-1d-inx char-buffer row col)))
     (if (and (not (null 1d-inx))
              (< 1d-inx size))
-      (elt (first char-buffer) 1d-inx)
+      (elt (cdg-char-buf-body char-buffer) 1d-inx)
       bad-value)))
 
 (defun cdg-set-char-safe (char-buffer row col new-value)
@@ -148,7 +181,7 @@
         (1d-inx (cdg-2d-to-1d-inx char-buffer row col)))
     (if (and (not (null 1d-inx))
              (< 1d-inx size))
-        (aset (first char-buffer) 1d-inx new-value)
+        (aset (cdg-char-buf-body char-buffer) 1d-inx new-value)
       nil)))
 
 
@@ -156,7 +189,7 @@
   (let* ((start (cdg-2d-to-1d-inx char-buffer row 0))
          (end   (+ start (cdg-buf-col-count char-buffer))))
     (if (< row (cdg-buf-row-count char-buffer))
-        (substring (first char-buffer) start end)
+        (substring (cdg-char-buf-body char-buffer) start end)
       nil)))
 
 (defun cdg-get-cell (row col)
