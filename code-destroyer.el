@@ -54,7 +54,7 @@
 (defvar *cdg-score* 0
   "Количество игровых очков игрока")
 
-(defconst *cdg-space-margin* 7
+(defconst *cdg-min-platform-space* 7
   "Определяет минимальное начальное расстояние между
    игровым полем и платформой игрока")
 
@@ -100,12 +100,12 @@
     (setq-local truncate-lines t)
     (cdg-copy-view-part-buffer *cdg-code-buffer*
                                *cdg-game-buffer*
-                               *cdg-space-margin*)
+                               *cdg-min-space-platform*
     (cdg-build-game-board *cdg-game-buffer*)
     (setq *cdg-board-rows*
           (/ (length *cdg-game-board*) *cdg-board-cols*))
     (erase-buffer)
-    (cdg-draw-game-board *cdg-game-buffer* *cdg-game-board*)))
+    (cdg-draw-game-board *cdg-game-buffer* *cdg-game-board*))))
 
 (defun cdg-make-char-buffer (rows cols fill-char)
   "Представляет прямоугольный массив из текстовых символов. Хранится одной большой строкой.
@@ -243,40 +243,43 @@
 (defun cdg-build-game-board (buffer)
   "Создает игровое поле на основе текста буфера."
   (switch-to-buffer buffer)
-  (let ((begin-line nil))
+  (let ((begin-line nil)
+        (win-width (window-body-width))
+        (buf-text-with-limit ""))
     (beginning-of-buffer)
-    (setq *cdg-game-board* "")
     (while (not (eobp))
       (beginning-of-line)
       (setq begin-line (point))
       (end-of-line)
-      (setq *cdg-game-board*
-            (concat *cdg-game-board*
-                    (cdg-build-game-board-row
+      (setq buf-text-with-limit
+            (concat buf-text-with-limit
+                    (cdg-to-length
                      (buffer-substring-no-properties begin-line (point))
-                     *cdg-board-cols*)))
-      (forward-line 1))))
+                     win-width
+                     *cdg-space-sym*)))
+      (forward-line 1))
+    (cdg-resize-char-buffer
+     (cdg-make-char-buffer-by-string
+      buf-text-with-limit
+      win-width
+      *cdg-space-sym*)
+     (- (window-body-height) *cdg-min-space-platform)
+     win-width)))
 
-(defun cdg-build-game-board-row (code-str row-width)
-  "Строит одну строку игрового поля на основе текстовой
-   строки. Приводит строку к единой длине row-width"
-  (let* ((trim-str (string-trim-right code-str))
-         (str-len (length trim-str)))
-    (if (< str-len row-width)
-        ;; Дополняем строку пробелами до длины row-width
-        (concat trim-str
-                (make-string (- row-width str-len) *cdg-space-sym*))
-        (substring trim-str 0 row-width))))
+(defun cdg-draw-game-board (board char-buffer start-row)
+  (dotimes (r (cdg-char-buf-row-count board))
+    (cdg-set-char-row char-buffer
+                      (+ start-row r)
+                      (cdg-get-char-row board r))))
 
-(defun cdg-draw-game-board (buffer board)
-  (let ((inhibit-read-only t))
-    (dotimes (row *cdg-board-rows*)
-      (let ((line-pos (* row *cdg-board-cols*)))
-      (insert
-       (format "%s\n"
-               (substring board
-                          line-pos
-                          (+ line-pos *cdg-board-cols*))))))))
+  ;; (let ((inhibit-read-only t))
+  ;;   (dotimes (row *cdg-board-rows*)
+  ;;     (let ((line-pos (* row *cdg-board-cols*)))
+  ;;     (insert
+  ;;      (format "%s\n"
+  ;;              (substring board
+  ;;                         line-pos
+  ;;                         (+ line-pos *cdg-board-cols*))))))))
 
 (defun cdg-make-ball (radius coord direction)
   (list radius coord (cdg-normalize-2d-vec direction)))
