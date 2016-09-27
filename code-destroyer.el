@@ -102,6 +102,15 @@
         rows
         cols))
 
+(defun cdg-make-char-buffer-by-string (str col-count fill-char)
+  (let ((row-count (/ (length str) col-count)))
+    (when (not (equalp 0 (mod (length str) col-count)))
+      (setq row-count (1+ row-count))
+      (setq str (cdg-to-length str
+                               (* row-count col-count)
+                               fill-char)))
+    (list str row-count col-count)))
+
 (defun cdg-to-length (str new-length fill-char)
   "Приводит строку к указанной длине, добавляя
    символы-заполнители, либо удаляя не нужные
@@ -126,11 +135,11 @@
                     (cdg-to-length (cdg-get-char-row buffer r)
                                    col-count
                                    fill-char))))
-    (list (cdg-to-length result-body
-                         (* row-count col-count)
-                         fill-char)
-          row-count
-          col-count)))
+    (cdg-make-char-buffer-by-string (cdg-to-length result-body
+                                                   (* row-count col-count)
+                                                   fill-char)
+                                    col-count
+                                    fill-char)))
 
 (defun cdg-buf-row-count (char-buffer)
   (second char-buffer))
@@ -144,6 +153,7 @@
 
 (defun cdg-char-buf-body (buffer)
   (first buffer))
+
 
 (defun cdg-2d-to-1d-inx (char-buffer row col)
   "Перевод координат из прямоугольной 2-х мерной,
@@ -191,6 +201,19 @@
     (if (< row (cdg-buf-row-count char-buffer))
         (substring (cdg-char-buf-body char-buffer) start end)
       nil)))
+
+(defun cdg-set-char-row (char-buffer row-inx row-data)
+  (let* ((row-begin (cdg-2d-to-1d-inx char-buffer row-inx 0))
+         (row-end   (+ row-begin (cdg-buf-col-count char-buffer)))
+         (col-count (cdg-buf-col-count char-buffer))
+         (body      (cdg-char-buf-body char-buffer)))
+    (when (< row-inx col-count)
+        (setq char-buffer
+              (list (concat (substring body 0 row-begin)
+                      (cdg-to-length row-data col-count *cdg-space-sym*)
+                      (substring body row-end))
+              (cdg-buf-row-count char-buffer)
+              col-count)))))
 
 (defun cdg-get-cell (row col)
   "Get the value in (ROW, COL)."
