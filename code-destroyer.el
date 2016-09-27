@@ -34,6 +34,10 @@
 (defvar *cdg-game-buffer* nil
   "Буфер, в котором происходит сама игра")
 
+(defvar *cdg-draw-buffer* nil
+  "Символьный буфер, в котором идет отрисовка всех
+   элементов игры.")
+
 (defvar *cdg-game-board* nil
   "Игровое поле. Представляет из себя текст с пробелами")
 
@@ -96,16 +100,21 @@
 (defun cdg-init ()
   "Собственно инициализация игры."
   (let ((inhibit-read-only t))
-    (erase-buffer)
     (setq-local truncate-lines t)
-    (cdg-copy-view-part-buffer *cdg-code-buffer*
-                               *cdg-game-buffer*
-                               *cdg-min-space-platform*
-    (cdg-build-game-board *cdg-game-buffer*)
-    (setq *cdg-board-rows*
-          (/ (length *cdg-game-board*) *cdg-board-cols*))
+    (setq *cdg-game-board*
+          (cdg-build-game-board *cdg-code-buffer*))
+    (setq *cdg-draw-buffer*
+          (cdg-make-char-buffer (window-body-height)
+                                (window-body-width)
+                                *cdg-space-sym*))
+
+    (switch-to-buffer *cdg-game-buffer*)
     (erase-buffer)
-    (cdg-draw-game-board *cdg-game-buffer* *cdg-game-board*))))
+
+    (cdg-draw-game-board *cdg-game-board*
+                         *cdg-draw-buffer*
+                         1)
+    (cdg-output-char-buffer *cdg-draw-buffer*)))
 
 (defun cdg-make-char-buffer (rows cols fill-char)
   "Представляет прямоугольный массив из текстовых символов. Хранится одной большой строкой.
@@ -207,16 +216,17 @@
 
 (defun cdg-set-char-row (char-buffer row-inx row-data)
   (let* ((row-begin (cdg-2d-to-1d-inx char-buffer row-inx 0))
-         (row-end   (+ row-begin (cdg-char-buf-col-count char-buffer)))
          (col-count (cdg-char-buf-col-count char-buffer))
+         (row-end   (+ row-begin col-count))
+         (row-count (cdg-char-buf-row-count char-buffer))
          (body      (cdg-char-buf-body char-buffer)))
-    (when (< row-inx col-count)
+    (when (< row-inx row-count)
         (setq char-buffer
               (list (concat (substring body 0 row-begin)
                             (cdg-to-length row-data col-count *cdg-space-sym*)
                             (substring body row-end))
-              (cdg-char-buf-row-count char-buffer)
-              col-count)))))
+                    row-count
+                    col-count)))))
 
 (defun cdg-copy-view-part-buffer (source receiver &optional margin)
   "Копирует часть текста из буфера source в буфер receiver.
@@ -263,8 +273,9 @@
       buf-text-with-limit
       win-width
       *cdg-space-sym*)
-     (- (window-body-height) *cdg-min-space-platform)
-     win-width)))
+     (- (window-body-height) *cdg-min-platform-space*)
+     win-width
+     *cdg-space-sym*)))
 
 (defun cdg-draw-game-board (board char-buffer start-row)
   (dotimes (r (cdg-char-buf-row-count board))
@@ -272,14 +283,14 @@
                       (+ start-row r)
                       (cdg-get-char-row board r))))
 
-  ;; (let ((inhibit-read-only t))
-  ;;   (dotimes (row *cdg-board-rows*)
-  ;;     (let ((line-pos (* row *cdg-board-cols*)))
-  ;;     (insert
-  ;;      (format "%s\n"
-  ;;              (substring board
-  ;;                         line-pos
-  ;;                         (+ line-pos *cdg-board-cols*))))))))
+(defun cdg-output-char-buffer (char-buffer)
+  "Выводит содержимое символьного буфера в
+   emacs-буфер, в текущую позицию курсора."
+  (let ((inhibit-read-only t))
+    (dotimes (r (cdg-char-buf-row-count char-buffer))
+      (insert
+       (format "%s\n"
+               (cdg-get-char-row char-buffer r))))))
 
 (defun cdg-make-ball (radius coord direction)
   (list radius coord (cdg-normalize-2d-vec direction)))
