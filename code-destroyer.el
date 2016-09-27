@@ -80,6 +80,19 @@
   ""
   (interactive))
 
+;; Функции широкого назначения
+(defun cdg-to-length (str new-length fill-char)
+  "Приводит строку к указанной длине, добавляя
+   символы-заполнители, либо удаляя не нужные
+   символы с конца."
+  (let ((old-length (length str)))
+    (if (< new-length old-length)
+        (substring str 0 new-length)
+      (concat str
+              (make-string (- new-length old-length)
+                           fill-char)))))
+
+
 (defun cdg-init ()
   "Собственно инициализация игры."
   (let ((inhibit-read-only t))
@@ -111,22 +124,12 @@
                                fill-char)))
     (list str row-count col-count)))
 
-(defun cdg-to-length (str new-length fill-char)
-  "Приводит строку к указанной длине, добавляя
-   символы-заполнители, либо удаляя не нужные
-   символы с конца."
-  (let ((old-length (length str)))
-    (if (< new-length old-length)
-        (substring str 0 new-length)
-      (concat str
-              (make-string (- new-length old-length)
-                           fill-char)))))
 
 (defun cdg-resize-char-buffer (buffer row-count col-count fill-char)
   "Изменяет размер символьного буфера. Если размер становится больше,
    то недостающие позиции заполняются символом-заполнителем"
-  (let ((old-row-count (cdg-buf-row-count buffer))
-        (old-col-count (cdg-buf-col-count buffer))
+  (let ((old-row-count (cdg-char-buf-row-count buffer))
+        (old-col-count (cdg-char-buf-col-count buffer))
         (result-body   ""))
     ;; сначала приводим все строки к единой длине
     (dotimes (r old-row-count)
@@ -141,15 +144,15 @@
                                     col-count
                                     fill-char)))
 
-(defun cdg-buf-row-count (char-buffer)
-  (second char-buffer))
+(defun cdg-char-buf-row-count (buffer)
+  (second buffer))
 
-(defun cdg-buf-col-count (char-buffer)
-  (third char-buffer))
+(defun cdg-char-buf-col-count (buffer)
+  (third buffer))
 
-(defun cdg-char-buf-size (char-buffer)
-  (* (cdg-buf-row-count char-buffer)
-     (cdg-buf-col-count char-buffer)))
+(defun cdg-char-buf-size (buffer)
+  (* (cdg-char-buf-row-count buffer)
+     (cdg-char-buf-col-count buffer)))
 
 (defun cdg-char-buf-body (buffer)
   (first buffer))
@@ -161,7 +164,7 @@
    положительные значения."
   (if (and (>= row 0) (>= col 0))
       (+ col
-         (* row (cdg-buf-col-count char-buffer)))
+         (* row (cdg-char-buf-col-count char-buffer)))
     nil))
 
 (defun cdg-get-char (char-buffer row col)
@@ -197,36 +200,23 @@
 
 (defun cdg-get-char-row (char-buffer row)
   (let* ((start (cdg-2d-to-1d-inx char-buffer row 0))
-         (end   (+ start (cdg-buf-col-count char-buffer))))
-    (if (< row (cdg-buf-row-count char-buffer))
+         (end   (+ start (cdg-char-buf-col-count char-buffer))))
+    (if (< row (cdg-char-buf-row-count char-buffer))
         (substring (cdg-char-buf-body char-buffer) start end)
       nil)))
 
 (defun cdg-set-char-row (char-buffer row-inx row-data)
   (let* ((row-begin (cdg-2d-to-1d-inx char-buffer row-inx 0))
-         (row-end   (+ row-begin (cdg-buf-col-count char-buffer)))
-         (col-count (cdg-buf-col-count char-buffer))
+         (row-end   (+ row-begin (cdg-char-buf-col-count char-buffer)))
+         (col-count (cdg-char-buf-col-count char-buffer))
          (body      (cdg-char-buf-body char-buffer)))
     (when (< row-inx col-count)
         (setq char-buffer
               (list (concat (substring body 0 row-begin)
-                      (cdg-to-length row-data col-count *cdg-space-sym*)
-                      (substring body row-end))
-              (cdg-buf-row-count char-buffer)
+                            (cdg-to-length row-data col-count *cdg-space-sym*)
+                            (substring body row-end))
+              (cdg-char-buf-row-count char-buffer)
               col-count)))))
-
-(defun cdg-get-cell (row col)
-  "Get the value in (ROW, COL)."
-  (elt *cdg-game-board*
-       (+ (* row *cdg-board-cols*)
-          col)))
-
-(defun cdg-set-cell (row column val)
-  "Set the value in (ROW, COLUMN) to VAL."
-  (aset *cdg-game-board*
-        (+ (* row *cdg-board-cols*)
-           column)
-        val))
 
 (defun cdg-copy-view-part-buffer (source receiver &optional margin)
   "Копирует часть текста из буфера source в буфер receiver.
