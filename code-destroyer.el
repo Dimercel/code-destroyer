@@ -207,6 +207,7 @@
       nil)))
 
 
+;; TODO: do correct work
 (defun cdg-get-char-row (char-buffer row)
   (let* ((start (cdg-2d-to-1d-inx char-buffer row 0))
          (end   (+ start (cdg-char-buf-col-count char-buffer))))
@@ -279,9 +280,11 @@
 
 (defun cdg-draw-game-board (board char-buffer start-row)
   (dotimes (r (cdg-char-buf-row-count board))
-    (cdg-set-char-row char-buffer
-                      (+ start-row r)
-                      (cdg-get-char-row board r))))
+    (dotimes (c (cdg-char-buf-col-count board))
+      (cdg-set-char-safe char-buffer
+                         (+ r start-row)
+                         c
+                         (cdg-get-char board r c )))))
 
 (defun cdg-output-char-buffer (char-buffer)
   "Выводит содержимое символьного буфера в
