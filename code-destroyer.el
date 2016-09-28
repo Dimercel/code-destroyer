@@ -120,18 +120,25 @@
   "Представляет прямоугольный массив из текстовых символов. Хранится одной большой строкой.
    ROWS - кол-во строк, COLS - кол-во столбцов, FILL-CHAR - символ-заполнитель, которым
    будет инициализорован буфер."
-  (list (make-string (* rows cols) fill-char)
-        rows
-        cols))
+  (cond
+   ((or (eql rows 0) (eql cols 0))
+    (list "" 0 0))
+   (t (list (make-string (* rows cols) fill-char)
+            rows
+            cols))))
 
 (defun cdg-make-char-buffer-by-string (str col-count fill-char)
-  (let ((row-count (/ (length str) col-count)))
-    (when (not (equalp 0 (mod (length str) col-count)))
-      (setq row-count (1+ row-count))
-      (setq str (cdg-to-length str
-                               (* row-count col-count)
-                               fill-char)))
-    (list str row-count col-count)))
+  (cond
+   ((or (= (length str) 0) (= col-count 0))
+    (list "" 0 0))
+   (t
+    (let ((row-count (/ (length str) col-count)))
+      (when (not (equalp 0 (mod (length str) col-count)))
+        (setq row-count (1+ row-count))
+        (setq str (cdg-to-length str
+                                 (* row-count col-count)
+                                 fill-char)))
+      (list str row-count col-count)))))
 
 
 (defun cdg-resize-char-buffer (buffer row-count col-count fill-char)
