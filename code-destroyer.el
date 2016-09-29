@@ -97,6 +97,12 @@
           (cdg-make-char-buffer (window-body-height)
                                 (window-body-width)
                                 *cdg-space-sym*))
+    (setq *cdg-platform*
+          (cdg-make-platform
+           (/ (cdg-char-buf-col-count *cdg-game-board*) 2)
+           4.0
+           1.0
+           ?-))
 
     (switch-to-buffer *cdg-game-buffer*)
     (erase-buffer)
@@ -104,6 +110,7 @@
     (cdg-draw-game-board *cdg-game-board*
                          *cdg-draw-buffer*
                          1)
+    (cdg-draw-platform *cdg-platform* *cdg-draw-buffer*)
     (cdg-output-char-buffer *cdg-draw-buffer*)))
 
 (defun cdg-make-char-buffer (rows cols fill-char)
@@ -284,8 +291,8 @@
   (elt ball 1))
 
 
-(defun cdg-make-platform (center-pos size speed)
-  (list center-pos size speed))
+(defun cdg-make-platform (center-pos size speed symbol)
+  (list center-pos size speed symbol))
 
 (defun cdg-platform-pos (platform)
   (first platform))
@@ -295,6 +302,38 @@
 
 (defun cdg-platform-speed (platform)
   (third platform))
+
+(defun cdg-platform-symbol (platform)
+  (fourth platform))
+
+(defun cdg-platform-move (platform value)
+  (let ((new-value (+ (cdg-platform-pos platform) value)))
+    (when (< new-value 0)
+      (setq new-value 0))
+    (cdg-make-platform new-value
+                       (cdg-platform-size platform)
+                       (cdg-platform-speed platform)
+                       (cdg-platform-symbol platform))))
+
+(defun cdg-platform-move-to (platform value)
+  (if (< value 0)
+      platform
+    (cdg-make-platform value
+                       (cdg-platform-size platform)
+                       (cdg-platform-speed platform)
+                       (cdg-platform-symbol platform))))
+
+(defun cdg-draw-platform (platform char-buffer)
+  ""
+  (let* ((half-size (/ (cdg-platform-size platform) 2))
+         (last-row  (1- (cdg-char-buf-row-count char-buffer)))
+         (start-pos (truncate (- (cdg-platform-pos platform)
+                                 half-size))))
+    (dotimes (i (ceiling (cdg-platform-size platform)))
+      (cdg-set-char-safe char-buffer
+                         last-row
+                         (+ start-pos i)
+                         (cdg-platform-symbol platform)))))
 
 (defmacro cdg-debug (&rest body)
   "Output debug info, if *cdg-debug* is t"
