@@ -19,7 +19,8 @@
   (buffer-disable-undo "cdg")
 
   (code-destroyer-mode)
-  (cdg-init))
+  (cdg-init)
+  (cdg-draw-game))
 
 
 (require 'cl-lib)
@@ -60,12 +61,20 @@
 
 
 (defun cdg-left ()
-  ""
-  (interactive))
+  "Двигает платформу влево"
+  (interactive)
+  (setq *cdg-platform*
+        (cdg-platform-move *cdg-platform*
+                           (- (cdg-platform-speed *cdg-platform*))))
+  (cdg-draw-game))
 
 (defun cdg-right ()
-  ""
-  (interactive))
+  "Двигает платформу вправо"
+  (interactive)
+  (setq *cdg-platform*
+        (cdg-platform-move *cdg-platform*
+                           (- (cdg-platform-speed *cdg-platform*))))
+  (cdg-draw-game))
 
 ;; Функции широкого назначения
 (defun cdg-to-length (str new-length fill-char)
@@ -100,18 +109,9 @@
     (setq *cdg-platform*
           (cdg-make-platform
            (/ (cdg-char-buf-col-count *cdg-game-board*) 2)
-           4.0
+           5.0
            1.0
-           ?-))
-
-    (switch-to-buffer *cdg-game-buffer*)
-    (erase-buffer)
-
-    (cdg-draw-game-board *cdg-game-board*
-                         *cdg-draw-buffer*
-                         1)
-    (cdg-draw-platform *cdg-platform* *cdg-draw-buffer*)
-    (cdg-output-char-buffer *cdg-draw-buffer*)))
+           ?-))))
 
 (defun cdg-make-char-buffer (rows cols fill-char)
   "Представляет прямоугольный массив из текстовых символов. Хранится одной большой строкой.
@@ -170,6 +170,11 @@
 (defun cdg-char-buf-body (buffer)
   (first buffer))
 
+(defun cdg-erase-char-buffer (buffer fill-char)
+  ""
+  (cdg-make-char-buffer (cdg-char-buf-row-count buffer)
+                        (cdg-char-buf-col-count buffer)
+                        fill-char))
 
 (defun cdg-2d-to-1d-inx (char-buffer row col)
   "Перевод координат из прямоугольной 2-х мерной,
@@ -252,10 +257,9 @@
                      *cdg-space-sym*)))
       (forward-line 1))
     (cdg-resize-char-buffer
-     (cdg-make-char-buffer-by-string
-      buf-text-with-limit
-      win-width
-      *cdg-space-sym*)
+     (cdg-make-char-buffer-by-string buf-text-with-limit
+                                     win-width
+                                     *cdg-space-sym*)
      (- (window-body-height) *cdg-min-platform-space*)
      win-width
      *cdg-space-sym*)))
@@ -334,6 +338,21 @@
                          last-row
                          (+ start-pos i)
                          (cdg-platform-symbol platform)))))
+
+(defun cdg-draw-game ()
+  "Собственно отрисовка всех элементов игры"
+  (let ((inhibit-read-only t))
+    (switch-to-buffer *cdg-game-buffer*)
+    (erase-buffer)
+    (setq *cdg-draw-buffer*
+          (cdg-erase-char-buffer *cdg-draw-buffer*
+                                 *cdg-space-sym*))
+
+    (cdg-draw-game-board *cdg-game-board*
+                         *cdg-draw-buffer*
+                         1)
+    (cdg-draw-platform *cdg-platform* *cdg-draw-buffer*)
+    (cdg-output-char-buffer *cdg-draw-buffer*)))
 
 (defmacro cdg-debug (&rest body)
   "Output debug info, if *cdg-debug* is t"

@@ -1,5 +1,5 @@
 (require 'ert)
-;; (require 'code-destroyer)
+(require 'code-destroyer)
 
 
 (ert-deftest cdg-to-length ()
