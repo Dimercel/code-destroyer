@@ -1,6 +1,4 @@
 (define-derived-mode code-destroyer-mode special-mode "code-destroyer-mode"
-  (define-key code-destroyer-mode-map (kbd "<up>")    'cdg-up)
-  (define-key code-destroyer-mode-map (kbd "<down>")  'cdg-down)
   (define-key code-destroyer-mode-map (kbd "<left>")  'cdg-left)
   (define-key code-destroyer-mode-map (kbd "<right>") 'cdg-right))
 
@@ -15,7 +13,6 @@
   (interactive)
 
   (setq *cdg-code-buffer* (current-buffer))
-  (setq *cdg-board-cols* (window-body-width))
 
   (switch-to-buffer "cdg")
   (setq *cdg-game-buffer* (current-buffer))
@@ -41,12 +38,6 @@
 (defvar *cdg-game-board* nil
   "Игровое поле. Представляет из себя текст с пробелами")
 
-(defvar *cdg-board-rows* nil
-  "Количество строк на игровом поле")
-
-(defvar *cdg-board-cols* nil
-  "Количество столбцов на игровом поле")
-
 (defvar *cdg-ball* nil
   "Игровой мяч. Хранит размеры мяча, текущее положение и
    вектор направления")
@@ -68,14 +59,6 @@
   "Переменная отвечает за режим вывода отладочной ин-ии")
 
 
-(defun cdg-up ()
-  ""
-  (interactive))
-
-(defun cdg-down ()
-  ""
-  (interactive))
-
 (defun cdg-left ()
   ""
   (interactive))
@@ -95,6 +78,13 @@
       (concat str
               (make-string (- new-length old-length)
                            fill-char)))))
+
+(defun cdg-normalize-2d-vec (vec)
+  "Нормализует 2-х мерный вектор"
+  (let* ((x (elt vec 0))
+         (y (elt vec 1))
+         (vec-len (sqrt (+ (x*x) (y*y)))))
+    [(* x vec-len) (* y vec-len)]))
 
 
 (defun cdg-init ()
@@ -236,28 +226,6 @@
                     row-count
                     col-count)))))
 
-(defun cdg-copy-view-part-buffer (source receiver &optional margin)
-  "Копирует часть текста из буфера source в буфер receiver.
-   Копируется только видимый на текущий момент в окне текст.
-   margin - кол-во нижних строк, которые не будут скопированы"
-  (let ((start nil)
-        (finish nil))
-    (switch-to-buffer source)
-
-    (move-to-window-line 0)
-    (beginning-of-line)
-    (setq start (point))
-
-    (if (null margin)
-      (move-to-window-line (- 1))
-      (move-to-window-line (- margin)))
-    (end-of-line)
-    (setq finish (point))
-
-    (switch-to-buffer receiver)
-    (erase-buffer)
-    (insert-buffer-substring-no-properties source start finish)))
-
 (defun cdg-build-game-board (buffer)
   "Создает игровое поле на основе текста буфера."
   (switch-to-buffer buffer)
@@ -302,30 +270,19 @@
        (format "%s\n"
                (cdg-get-char-row char-buffer r))))))
 
-(defun cdg-make-ball (radius coord direction)
-  (list radius coord (cdg-normalize-2d-vec direction)))
-
-(defun cdg-ball-radius (ball)
-  "Радиус меча. Определяет размер,
-   а соответственно и площадь поражения"
-  (elt ball 0))
+(defun cdg-make-ball (coord direction)
+  (list coord (cdg-normalize-2d-vec direction)))
 
 (defun cdg-ball-pos (ball)
   "Собственно координаты центра мяча в
    двухмерной системе координат"
-  (elt ball 1))
+  (elt ball 0))
 
 (defun cdg-ball-direct (ball)
   "Нормализованный вектор-направление
    движения мяча"
-  (elt ball 2))
+  (elt ball 1))
 
-(defun cdg-normalize-2d-vec (vec)
-  "Нормализует 2-х мерный вектор"
-  (let* ((x (elt vec 0))
-         (y (elt vec 1))
-         (vec-len (sqrt (+ (x*x) (y*y)))))
-    [(* x vec-len) (* y vec-len)]))
 
 (defun cdg-make-platform (center-pos size speed)
   (list center-pos size speed))
