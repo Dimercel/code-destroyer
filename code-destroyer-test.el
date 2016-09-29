@@ -63,3 +63,20 @@
                                   0
                                   ?x)
           (cdg-make-char-buffer 0 0 ?x))))
+
+(ert-deftest cdg-char-buf-row-count ()
+  (should
+   (equal (cdg-char-buf-row-count (cdg-make-char-buffer 10 8 ?x))
+          10)))
+
+(ert-deftest cdg-char-buf-col-count ()
+  (should
+    (equal (cdg-char-buf-col-count (cdg-make-char-buffer 10 8 ?x))
+          8)))
+
+(ert-deftest cdg-char-buf-size ()
+  (let ((test-buffer (cdg-make-char-buffer 10 8 ?x)))
+    (should
+     (equal (* (cdg-char-buf-row-count test-buffer)
+               (cdg-char-buf-col-count test-buffer))
+            (cdg-char-buf-size test-buffer)))))
