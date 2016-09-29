@@ -1,5 +1,5 @@
 (require 'ert)
-(require 'code-destroyer)
+;; (require 'code-destroyer)
 
 
 (ert-deftest cdg-to-length ()
@@ -37,3 +37,29 @@
   (should
    (equal (cdg-make-char-buffer-by-string "xxx" 2 ?x)
           (cdg-make-char-buffer 2 2 ?x))))
+
+(ert-deftest cdg-resize-char-buffer ()
+  (should
+   (equal (cdg-resize-char-buffer (cdg-make-char-buffer 4 4 ?x)
+                                  6
+                                  6
+                                  ?x)
+          (cdg-make-char-buffer 6 6 ?x)))
+  (should
+   (equal (cdg-resize-char-buffer (cdg-make-char-buffer 4 4 ?x)
+                                  0
+                                  0
+                                  ?x)
+          (cdg-make-char-buffer 0 0 ?x)))
+  (should
+   (equal (cdg-resize-char-buffer (cdg-make-char-buffer 4 4 ?x)
+                                  0
+                                  2
+                                  ?x)
+          (cdg-make-char-buffer 0 2 ?x)))
+  (should
+   (equal (cdg-resize-char-buffer (cdg-make-char-buffer 4 4 ?x)
+                                  0
+                                  0
+                                  ?x)
+          (cdg-make-char-buffer 0 0 ?x))))
