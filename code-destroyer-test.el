@@ -80,3 +80,25 @@
      (equal (* (cdg-char-buf-row-count test-buffer)
                (cdg-char-buf-col-count test-buffer))
             (cdg-char-buf-size test-buffer)))))
+
+(ert-deftest cdg-mirror-vector ()
+  (should
+   (equal (cdg-mirror-vector [0.5 -0.5] 'horizontal)
+          [0.5 0.5]))
+  (should
+   (equal (cdg-mirror-vector [0.5 -0.5] 'vertical)
+          [-0.5 -0.5]))
+  (should
+   (not
+    (equal (cdg-mirror-vector [0.5 -0.5] 'vertical)
+           (cdg-mirror-vector [0.5 -0.5] 'horizontal))))
+  (should
+   (equal (cdg-mirror-vector
+           (cdg-mirror-vector [0.5 -0.5] 'vertical)
+           'vertical)
+          [0.5 -0.5]))
+  (should
+   (equal (cdg-mirror-vector
+           (cdg-mirror-vector [0.5 -0.5] 'horizontal)
+           'horizontal)
+          [0.5 -0.5])))
