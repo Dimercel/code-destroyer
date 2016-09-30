@@ -108,6 +108,14 @@
          (vec-len (sqrt (+ (* x x) (* y y)))))
     (vector (* x vec-len) (* y vec-len))))
 
+(defun cdg-mirror-vector (vector direction)
+  "Отражает вектор относительно указанного направления"
+  (let ((x (elt vector 0))
+        (y (elt vector 1)))
+  (case direction
+    ('horizontal (vector x (- y)))
+    ('vertical   (vector (- x) y)))))
+
 
 (defun cdg-init ()
   "Собственно инициализация игры."
