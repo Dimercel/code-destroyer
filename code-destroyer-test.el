@@ -1,5 +1,5 @@
 (require 'ert)
-(require 'code-destroyer)
+;; (require 'code-destroyer)
 
 
 (ert-deftest cdg-to-length ()
@@ -102,3 +102,25 @@
            (cdg-mirror-vector [0.5 -0.5] 'horizontal)
            'horizontal)
           [0.5 -0.5])))
+
+(ert-deftest cdg-erase-char-buffer ()
+  (should
+   (equal (cdg-erase-char-buffer (cdg-make-char-buffer 4 4 ?x)
+                                 ?t)
+          (cdg-make-char-buffer 4 4 ?t)))
+  (should
+   (equal (cdg-erase-char-buffer (cdg-make-char-buffer 0 4 ?x)
+                                 ?t)
+          (cdg-make-char-buffer 0 4 ?x))))
+
+(ert-deftest cdg-2d-to-1d-inx ()
+  (let ((test-buffer (cdg-make-char-buffer 2 4 ?x)))
+    (should
+     (equal (cdg-2d-to-1d-inx test-buffer -1 3)
+            nil))
+    (should
+     (equal (cdg-2d-to-1d-inx test-buffer 1 -1)
+            nil))
+    (should
+     (equal (cdg-2d-to-1d-inx test-buffer 1 2)
+            6))))
