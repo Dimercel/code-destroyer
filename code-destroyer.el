@@ -60,7 +60,7 @@
 
 (defconst *cdg-space-sym* ? )
 
-(defconst *cdg-debug* t
+(defconst *cdg-debug* nil
   "Переменная отвечает за режим вывода отладочной ин-ии")
 
 
@@ -115,6 +115,33 @@
   (case direction
     ('horizontal (vector x (- y)))
     ('vertical   (vector (- x) y)))))
+
+(defun cdg-box-ray-intersection (box ray)
+  "Возвращает t если прямоугольник и луч пересекаются
+   и nil в обратном случае"
+  nil)
+
+
+(defun cdg-make-rect (left-top right-bottom)
+  (list left-top right-bottom))
+
+(defun cdg-rect-left-top (rect)
+  (first rect))
+
+(defun cdg-rect-right-bottom (rect)
+  (second rect))
+
+(defun cdg-rect-min-x (rect)
+  (elt (first rect) 0))
+
+(defun cdg-rect-max-x (rect)
+  (elt (second rect) 0))
+
+(defun cdg-rect-min-y (rect)
+  (elt (first rect) 1))
+
+(defun cdg-rect-max-y (rect)
+  (elt (second rect) 1))
 
 
 (defun cdg-init ()
