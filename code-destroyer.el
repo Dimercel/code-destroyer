@@ -163,7 +163,18 @@
     (setq *cdg-ball*
           (cdg-return-ball-to-platform (cdg-make-ball [0 0] [-0.5 -0.5])
                                        *cdg-platform*
-                                       *cdg-draw-buffer*))))
+                                       *cdg-draw-buffer*))
+
+    (cdg-debug (format "Создано игровое поле %d x %d"
+                       (cdg-char-buf-row-count *cdg-game-board*)
+                       (cdg-char-buf-col-count *cdg-game-board*)))
+    (cdg-debug (format "Создан буфер отрисовки %d x %d"
+                       (cdg-char-buf-row-count *cdg-draw-buffer*)
+                       (cdg-char-buf-col-count *cdg-draw-buffer*)))
+    (cdg-debug (format "Начальное положение платформы: %d"
+                       (cdg-platform-pos *cdg-platform*)))
+    (cdg-debug (format "Начальное положение мяча: %s"
+                       (cdg-ball-pos *cdg-ball*)))))
 
 (defun cdg-make-char-buffer (rows cols fill-char)
   "Представляет прямоугольный массив из текстовых символов. Хранится одной большой строкой.
@@ -267,8 +278,6 @@
         (aset (cdg-char-buf-body char-buffer) 1d-inx new-value)
       nil)))
 
-
-;; TODO: do correct work
 (defun cdg-get-char-row (char-buffer row)
   (let* ((start (cdg-2d-to-1d-inx char-buffer row 0))
          (end   (+ start (cdg-char-buf-col-count char-buffer))))
@@ -276,6 +285,7 @@
         (substring (cdg-char-buf-body char-buffer) start end)
       nil)))
 
+;; TODO: do correct work
 (defun cdg-set-char-row (char-buffer row-inx row-data)
   (let* ((row-begin (cdg-2d-to-1d-inx char-buffer row-inx 0))
          (col-count (cdg-char-buf-col-count char-buffer))
