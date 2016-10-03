@@ -1,5 +1,5 @@
 (require 'ert)
-;; (require 'code-destroyer)
+(require 'code-destroyer)
 
 
 (ert-deftest cdg-to-length ()
@@ -98,6 +98,9 @@
            'vertical)
           [0.5 -0.5]))
   (should
+   (not (equal (cdg-mirror-vector [0.5 -0.5] 'vertical)
+               (cdg-mirror-vector [0.5 -0.5] 'horizontal))))
+  (should
    (equal (cdg-mirror-vector
            (cdg-mirror-vector [0.5 -0.5] 'horizontal)
            'horizontal)
@@ -124,3 +127,11 @@
     (should
      (equal (cdg-2d-to-1d-inx test-buffer 1 2)
             6))))
+
+(ert-deftest cdg-invert-vector ()
+  (let ((test-vec [2.0 -1.7]))
+    (should
+     (equal (cdg-mirror-vector
+             (cdg-mirror-vector test-vec 'vertical)
+             'horizontal)
+            (cdg-invert-vector test-vec)))))

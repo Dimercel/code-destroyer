@@ -116,6 +116,12 @@
     ('horizontal (vector x (- y)))
     ('vertical   (vector (- x) y)))))
 
+(defun cdg-invert-vector (vector)
+  "Инвертирует направление вектора"
+  (cdg-mirror-vector
+   (cdg-mirror-vector vector 'vertical)
+   'horizontal))
+
 (defun cdg-box-ray-intersection (box ray)
   "Возвращает t если прямоугольник и луч пересекаются
    и nil в обратном случае"
