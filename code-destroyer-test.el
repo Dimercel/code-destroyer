@@ -135,3 +135,22 @@
              (cdg-mirror-vector test-vec 'vertical)
              'horizontal)
             (cdg-invert-vector test-vec)))))
+
+(ert-deftest cdg-platform-move ()
+  (should
+   (equal (cdg-platform-pos (cdg-platform-move (cdg-make-platform 10.0 5 0.1 ?x) 5.0))
+          15.0))
+  (should
+   (equal (cdg-platform-pos (cdg-platform-move (cdg-make-platform 10.0 5 0.1 ?x) -5.0))
+          5.0))
+  (should
+   (equal (cdg-platform-pos (cdg-platform-move (cdg-make-platform 10.0 5 0.1 ?x) -15.0))
+          0)))
+
+(ert-deftest cdg-platform-move-to ()
+  (should
+   (equal (cdg-platform-pos (cdg-platform-move-to (cdg-make-platform 10.0 5 0.1 ?x) 5.0))
+          5.0))
+  (should
+   (equal (cdg-platform-pos (cdg-platform-move-to (cdg-make-platform 10.0 5 0.1 ?x) -5.0))
+          10.0)))
