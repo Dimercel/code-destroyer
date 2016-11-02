@@ -1,6 +1,7 @@
 (define-derived-mode code-destroyer-mode special-mode "code-destroyer-mode"
   (define-key code-destroyer-mode-map (kbd "<left>")  'cdg-left)
-  (define-key code-destroyer-mode-map (kbd "<right>") 'cdg-right))
+  (define-key code-destroyer-mode-map (kbd "<right>") 'cdg-right)
+  (define-key code-destroyer-mode-map (kbd "<space>") 'cdg-action))
 
 (defgroup cdg nil
   ""
@@ -20,7 +21,7 @@
 
   (code-destroyer-mode)
   (cdg-init)
-  (cdg-draw-game))
+  (cdg-main-loop))
 
 
 (require 'cl-lib)
@@ -89,6 +90,13 @@
                                  *cdg-draw-buffer*))
   (cdg-draw-game))
 
+
+(defun cdg-action ()
+  "Отпускает мяч с платформы"
+  (interactive)
+  (setq *cdg-ball-on-platform* nil)
+  (run-with-idle-timer 0.5 10 'cdg-main-loop))
+
 ;; Функции широкого назначения
 (defun cdg-to-length (str new-length fill-char)
   "Приводит строку к указанной длине, добавляя
@@ -105,8 +113,8 @@
   "Нормализует 2-х мерный вектор"
   (let* ((x (elt vec 0))
          (y (elt vec 1))
-         (vec-len (sqrt (+ (* x x) (* y y)))))
-    (vector (* x vec-len) (* y vec-len))))
+         (inv-len (/ 1.0 (sqrt (+ (* x x) (* y y))))))
+    (vector (* x inv-len) (* y inv-len))))
 
 (defun cdg-mirror-vector (vector direction)
   "Отражает вектор относительно указанного направления"
@@ -379,6 +387,16 @@
    движения мяча"
   (elt ball 1))
 
+(defun cdg-ball-move (ball step)
+  "Перемещает мяч в новую точку в
+   соответствии с его направлением"
+  (let ((pos (cdg-ball-pos ball))
+        (vec (cdg-ball-direct ball)))
+    (cdg-make-ball (vector
+                    (* step (+ (elt pos 0) (elt vec 0)))
+                    (* step (+ (elt pos 1) (elt vec 1))))
+                   vec)))
+
 (defun cdg-return-ball-to-platform (ball platform board)
   "Возвращает мяч на подвижную платформу. Используется
    для начала игры"
@@ -461,6 +479,11 @@
   `(when *cdg-debug*
      (print (concat ,@body)
             (get-buffer-create "cdg-debug"))))
+
+(defun cdg-main-loop ()
+  "Главный цикл игры"
+  (setq *cdg-ball* (cdg-ball-move *cdg-ball* 1.0))
+  (cdg-draw-game))
 
 
 (provide 'code-destroyer-game)
