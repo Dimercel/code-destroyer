@@ -397,8 +397,8 @@
   (let ((pos (cdg-ball-pos ball))
         (vec (cdg-ball-direct ball)))
     (cdg-make-ball (vector
-                    (* step (+ (elt pos 0) (elt vec 0)))
-                    (* step (+ (elt pos 1) (elt vec 1))))
+                    (+ (elt pos 0) (* (elt vec 0) step))
+                    (+ (elt pos 1) (* (elt vec 1) step)))
                    vec)))
 
 (defun cdg-return-ball-to-platform (ball platform board)
@@ -487,8 +487,8 @@
 (defun cdg-main-loop ()
   "Главный цикл игры"
   (when (eq (current-buffer) *cdg-game-buffer*)
-    (when *cdg-ball-on-platform*
-      (setq *cdg-ball* (cdg-ball-move *cdg-ball* 1.0)))
+    (unless *cdg-ball-on-platform*
+      (setq *cdg-ball* (cdg-ball-move *cdg-ball* 0.7)))
     (cdg-draw-game)))
 
 
