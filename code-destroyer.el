@@ -16,16 +16,21 @@
   (setq *cdg-code-buffer* (current-buffer))
 
   (switch-to-buffer "cdg")
+  (use-local-map code-destroyer-mode-map)
   (setq *cdg-game-buffer* (current-buffer))
   (buffer-disable-undo "cdg")
 
   (code-destroyer-mode)
   (cdg-init)
-  (cdg-main-loop))
+  (setq *cdg-game-timer* (run-with-timer 0.5 0.5 'cdg-main-loop)))
 
 
 (require 'cl-lib)
 
+
+(defvar *cdg-game-timer* nil
+  "Основной таймер игры. Запускает main-loop через
+   фиксированный интервал времени")
 
 (defvar *cdg-code-buffer* nil
   "Буфер, в которой расположен текст играющий роль игрвого поля")
@@ -94,8 +99,7 @@
 (defun cdg-action ()
   "Отпускает мяч с платформы"
   (interactive)
-  (setq *cdg-ball-on-platform* nil)
-  (run-with-idle-timer 0.5 10 'cdg-main-loop))
+  (setq *cdg-ball-on-platform* nil))
 
 ;; Функции широкого назначения
 (defun cdg-to-length (str new-length fill-char)
@@ -482,8 +486,10 @@
 
 (defun cdg-main-loop ()
   "Главный цикл игры"
-  (setq *cdg-ball* (cdg-ball-move *cdg-ball* 1.0))
-  (cdg-draw-game))
+  (when (eq (current-buffer) *cdg-game-buffer*)
+    (when *cdg-ball-on-platform*
+      (setq *cdg-ball* (cdg-ball-move *cdg-ball* 1.0)))
+    (cdg-draw-game)))
 
 
 (provide 'code-destroyer-game)
