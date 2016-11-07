@@ -18,7 +18,7 @@
   (switch-to-buffer "cdg")
   (use-local-map code-destroyer-mode-map)
   (setq *cdg-game-buffer* (current-buffer))
-  (buffer-disable-undo "cdg")
+  (buffer-disable-undo *cdg-game-buffer*)
 
   (code-destroyer-mode)
   (cdg-init)
