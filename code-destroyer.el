@@ -14,14 +14,15 @@
   (interactive)
 
   (setq *cdg-code-buffer* (current-buffer))
+  (setq *cdg-game-buffer* (get-buffer-create "cdg"))
 
-  (switch-to-buffer "cdg")
-  (use-local-map code-destroyer-mode-map)
-  (setq *cdg-game-buffer* (current-buffer))
+  (switch-to-buffer *cdg-game-buffer*)
   (buffer-disable-undo *cdg-game-buffer*)
-
+  (use-local-map code-destroyer-mode-map)
   (code-destroyer-mode)
+
   (cdg-init)
+  (switch-to-buffer *cdg-game-buffer*)
   (setq *cdg-game-timer* (run-with-timer 0.5 0.5 'cdg-main-loop)))
 
 
