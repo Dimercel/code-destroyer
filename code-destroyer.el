@@ -135,29 +135,6 @@
    (cdg-mirror-vector vector 'vertical)
    'horizontal))
 
-(defun cdg-box-ray-intersection (box ray)
-  "Возвращает t если прямоугольник и луч пересекаются
-   и nil в обратном случае"
-  (let* ((inv-vec (cdg-invert-vector (second ray)))
-         (tx1 (* (elt inv-vec 0)
-                 (- (cdg-rect-min-x box)
-                    (elt (first ray) 0))))
-         (tx2 (* (elt inv-vec 0)
-                 (- (cdg-rect-max-x box)
-                    (elt (first ray) 0))))
-         (tmin (min tx1 tx2))
-         (tmax (max tx1 tx2))
-         (ty1 (* (elt inv-vec 1)
-                 (- (cdg-rect-min-y box)
-                    (elt (first ray) 1))))
-         (ty2 (* (elt inv-vec 1)
-                 (- (cdg-rect-max-y box)
-                    (elt (first ray) 1)))))
-    (setq tmin (max tmin (min ty1 ty2)))
-    (setq tmax (min tmax (max ty1 ty2)))
-    (>= tmax tmin)))
-
-
 (defun cdg-make-rect (left-top right-bottom)
   (list left-top right-bottom))
 
@@ -383,8 +360,8 @@
   (list coord (cdg-normalize-2d-vec direction)))
 
 (defun cdg-ball-pos (ball)
-  "Собственно координаты центра мяча в
-   двухмерной системе координат"
+  "Собственно координаты центра мяча
+   в Декартовой системе координат"
   (elt ball 0))
 
 (defun cdg-ball-direct (ball)
