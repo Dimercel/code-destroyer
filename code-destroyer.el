@@ -165,6 +165,22 @@
          (<= y (cdg-rect-max-y rect))
          (>= y (cdg-rect-min-y rect)))))
 
+(defun same-signp (&rest numbers)
+  "Все указанные числа одного знака?"
+  (or (every (lambda (x) (>= x 0)) numbers)
+      (every (lambda (x) (<= x 0)) numbers)))
+
+(defun cdg-hline-ray-intersection (line-y ray-start ray-direction)
+  "Вычисляет точку пересечения горизонтальной прямой и луча. Вектор
+   ray-direction должен быть нормированным"
+  (if (and (same-signp line-y (elt ray-direction 1))
+           (> (abs line-y) (abs (elt ray-start 1))))
+      (let ((line-dist (abs (- line-y (elt ray-start 1)))))
+        (vector (+ (elt ray-start 0)
+                   (* (/ line-dist (elt ray-direction 1))
+                      (elt ray-direction 0)))
+                line-y))
+    nil))
 
 (defun cdg-init ()
   "Собственно инициализация игры."
