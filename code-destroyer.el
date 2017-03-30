@@ -156,6 +156,15 @@
 (defun cdg-rect-max-y (rect)
   (elt (first rect) 1))
 
+(defun cdg-rect-point-test (rect point)
+  "Принадлежит ли точка прямоугольнику?"
+  (let ((x (elt point 0))
+        (y (elt point 1)))
+    (and (<= x (cdg-rect-max-x rect))
+         (>= x (cdg-rect-min-x rect))
+         (<= y (cdg-rect-max-y rect))
+         (>= y (cdg-rect-min-y rect)))))
+
 
 (defun cdg-init ()
   "Собственно инициализация игры."
