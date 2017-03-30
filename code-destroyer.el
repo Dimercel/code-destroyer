@@ -151,10 +151,10 @@
   (elt (second rect) 0))
 
 (defun cdg-rect-min-y (rect)
-  (elt (first rect) 1))
+  (elt (second rect) 1))
 
 (defun cdg-rect-max-y (rect)
-  (elt (second rect) 1))
+  (elt (first rect) 1))
 
 
 (defun cdg-init ()
