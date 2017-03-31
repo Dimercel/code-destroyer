@@ -29,6 +29,9 @@
 (require 'cl-lib)
 
 
+;;; Раздел объявления констант и переменных
+
+
 (defvar *cdg-game-timer* nil
   "Основной таймер игры. Запускает main-loop через
    фиксированный интервал времени")
@@ -71,38 +74,9 @@
   "Переменная отвечает за режим вывода отладочной ин-ии")
 
 
-(defun cdg-left ()
-  "Двигает платформу влево"
-  (interactive)
-  (setq *cdg-platform*
-        (cdg-platform-move *cdg-platform*
-                           (- (cdg-platform-speed *cdg-platform*))))
-  (when *cdg-ball-on-platform*
-    (setq *cdg-ball*
-          (cdg-return-ball-to-platform *cdg-ball*
-                                 *cdg-platform*
-                                 *cdg-draw-buffer*)))
-  (cdg-draw-game))
-
-(defun cdg-right ()
-  "Двигает платформу вправо"
-  (interactive)
-  (setq *cdg-platform*
-        (cdg-platform-move *cdg-platform*
-                           (+ (cdg-platform-speed *cdg-platform*))))
-  (when *cdg-ball-on-platform*
-    (cdg-return-ball-to-platform *cdg-ball*
-                                 *cdg-platform*
-                                 *cdg-draw-buffer*))
-  (cdg-draw-game))
+;;; Вспомогательные функции, используемые повсеместно
 
 
-(defun cdg-action ()
-  "Отпускает мяч с платформы"
-  (interactive)
-  (setq *cdg-ball-on-platform* nil))
-
-;; Функции широкого назначения
 (defun cdg-to-length (str new-length fill-char)
   "Приводит строку к указанной длине, добавляя
    символы-заполнители, либо удаляя не нужные
@@ -113,6 +87,17 @@
       (concat str
               (make-string (- new-length old-length)
                            fill-char)))))
+
+(defun same-signp (&rest numbers)
+  "Все указанные числа одного знака?"
+  (or (every (lambda (x) (>= x 0)) numbers)
+      (every (lambda (x) (<= x 0)) numbers)))
+
+
+;;; Геометрические функции в Декартовой системе координат
+
+
+;; Векторы и работа с ними
 
 (defun cdg-normalize-2d-vec (vec)
   "Нормализует 2-х мерный вектор"
@@ -125,15 +110,17 @@
   "Отражает вектор относительно указанного направления"
   (let ((x (elt vector 0))
         (y (elt vector 1)))
-  (case direction
-    ('horizontal (vector x (- y)))
-    ('vertical   (vector (- x) y)))))
+    (case direction
+      ('horizontal (vector x (- y)))
+      ('vertical   (vector (- x) y)))))
 
 (defun cdg-invert-vector (vector)
   "Инвертирует направление вектора"
   (cdg-mirror-vector
    (cdg-mirror-vector vector 'vertical)
    'horizontal))
+
+;; Прямоугольник параллельный оси Ox
 
 (defun cdg-make-rect (left-top right-bottom)
   (list left-top right-bottom))
@@ -156,6 +143,8 @@
 (defun cdg-rect-max-y (rect)
   (elt (first rect) 1))
 
+;; Функции, тестирующие разного рода пересечения
+
 (defun cdg-rect-point-test (rect point)
   "Принадлежит ли точка прямоугольнику?"
   (let ((x (elt point 0))
@@ -164,11 +153,6 @@
          (>= x (cdg-rect-min-x rect))
          (<= y (cdg-rect-max-y rect))
          (>= y (cdg-rect-min-y rect)))))
-
-(defun same-signp (&rest numbers)
-  "Все указанные числа одного знака?"
-  (or (every (lambda (x) (>= x 0)) numbers)
-      (every (lambda (x) (<= x 0)) numbers)))
 
 (defun cdg-hline-ray-intersection (line-y ray-start ray-direction)
   "Вычисляет точку пересечения горизонтальной прямой и луча. Вектор
@@ -195,37 +179,77 @@
     nil))
 
 
-(defun cdg-init ()
-  "Собственно инициализация игры."
-  (let ((inhibit-read-only t))
-    (setq-local truncate-lines t)
-    (setq *cdg-game-board*
-          (cdg-build-game-board *cdg-code-buffer*))
-    (setq *cdg-draw-buffer*
-          (cdg-make-char-buffer (window-body-height)
-                                (window-body-width)
-                                *cdg-space-sym*))
-    (setq *cdg-platform*
-          (cdg-make-platform
-           (/ (cdg-char-buf-col-count *cdg-game-board*) 2.0)
-           5.0
-           1.0
-           ?-))
-    (setq *cdg-ball*
-          (cdg-return-ball-to-platform (cdg-make-ball [0 0] [-0.5 -0.5])
-                                       *cdg-platform*
-                                       *cdg-draw-buffer*))
+;;; Игровые объекты
 
-    (cdg-debug (format "Создано игровое поле %d x %d"
-                       (cdg-char-buf-row-count *cdg-game-board*)
-                       (cdg-char-buf-col-count *cdg-game-board*)))
-    (cdg-debug (format "Создан буфер отрисовки %d x %d"
-                       (cdg-char-buf-row-count *cdg-draw-buffer*)
-                       (cdg-char-buf-col-count *cdg-draw-buffer*)))
-    (cdg-debug (format "Начальное положение платформы: %d"
-                       (cdg-platform-pos *cdg-platform*)))
-    (cdg-debug (format "Начальное положение мяча: %s"
-                       (cdg-ball-pos *cdg-ball*)))))
+
+(defun cdg-make-ball (coord direction)
+  (list coord (cdg-normalize-2d-vec direction)))
+
+(defun cdg-ball-pos (ball)
+  "Собственно координаты центра мяча
+   в Декартовой системе координат"
+  (elt ball 0))
+
+(defun cdg-ball-direct (ball)
+  "Нормализованный вектор-направление
+   движения мяча"
+  (elt ball 1))
+
+(defun cdg-ball-move (ball step)
+  "Перемещает мяч в новую точку в
+   соответствии с его направлением"
+  (let ((pos (cdg-ball-pos ball))
+        (vec (cdg-ball-direct ball)))
+    (cdg-make-ball (vector
+                    (+ (elt pos 0) (* (elt vec 0) step))
+                    (+ (elt pos 1) (* (elt vec 1) step)))
+                   vec)))
+
+(defun cdg-return-ball-to-platform (ball platform board)
+  "Возвращает мяч на подвижную платформу. Используется
+   для начала игры"
+  (setq *cdg-ball-on-platform* t)
+  (cdg-make-ball (vector (- (cdg-char-buf-row-count board) 2)
+                         (cdg-platform-pos platform))
+                 (cdg-ball-direct ball)))
+
+(defun cdg-make-platform (center-pos size speed symbol)
+  (list center-pos size speed symbol))
+
+(defun cdg-platform-pos (platform)
+  (first platform))
+
+(defun cdg-platform-size (platform)
+  (second platform))
+
+(defun cdg-platform-speed (platform)
+  (third platform))
+
+(defun cdg-platform-symbol (platform)
+  (fourth platform))
+
+(defun cdg-platform-move (platform value)
+  (let ((new-value (+ (cdg-platform-pos platform) value)))
+    (when (< new-value 0)
+      (setq new-value 0))
+    (cdg-make-platform new-value
+                       (cdg-platform-size platform)
+                       (cdg-platform-speed platform)
+                       (cdg-platform-symbol platform))))
+
+(defun cdg-platform-move-to (platform value)
+  (if (< value 0)
+      platform
+    (cdg-make-platform value
+                       (cdg-platform-size platform)
+                       (cdg-platform-speed platform)
+                       (cdg-platform-symbol platform))))
+
+
+
+;;; Код ниже описывает символьный буфер. Такой буфер состоит из одиночных
+;;; символов и является двумерным.
+
 
 (defun cdg-make-char-buffer (rows cols fill-char)
   "Представляет прямоугольный массив из текстовых символов. Хранится одной большой строкой.
@@ -251,14 +275,13 @@
                                  fill-char)))
       (list str row-count col-count)))))
 
-
 (defun cdg-resize-char-buffer (buffer row-count col-count fill-char)
   "Изменяет размер символьного буфера. Если размер становится больше,
    то недостающие позиции заполняются символом-заполнителем"
   (let ((old-row-count (cdg-char-buf-row-count buffer))
         (old-col-count (cdg-char-buf-col-count buffer))
         (result-body   ""))
-    ;; сначала приводим все строки к единой длине
+    ; сначала приводим все строки к единой длине
     (dotimes (r old-row-count)
       (setq result-body
             (concat result-body
@@ -289,15 +312,6 @@
   (cdg-make-char-buffer (cdg-char-buf-row-count buffer)
                         (cdg-char-buf-col-count buffer)
                         fill-char))
-
-(defun cdg-2d-to-1d-inx (char-buffer row col)
-  "Перевод координат из прямоугольной 2-х мерной,
-   в одномерный индекс. Допускаются только
-   положительные значения."
-  (if (and (>= row 0) (>= col 0))
-      (+ col
-         (* row (cdg-char-buf-col-count char-buffer)))
-    nil))
 
 (defun cdg-get-char (char-buffer row col)
   (elt (cdg-char-buf-body char-buffer)
@@ -336,7 +350,7 @@
         (substring (cdg-char-buf-body char-buffer) start end)
       nil)))
 
-;; TODO: do correct work
+; TODO: do correct work
 (defun cdg-set-char-row (char-buffer row-inx row-data)
   (let* ((row-begin (cdg-2d-to-1d-inx char-buffer row-inx 0))
          (col-count (cdg-char-buf-col-count char-buffer))
@@ -350,6 +364,87 @@
                             (substring body row-end))
                     row-count
                     col-count)))))
+
+(defun cdg-output-char-buffer (char-buffer)
+  "Выводит содержимое символьного буфера в
+   emacs-буфер, в текущую позицию курсора."
+  (let ((inhibit-read-only t))
+    (dotimes (r (cdg-char-buf-row-count char-buffer))
+      (insert
+       (format "%s\n"
+               (cdg-get-char-row char-buffer r))))))
+
+
+;;; Взаимодействие логики игры с Emacs
+
+
+(defun cdg-left ()
+  "Двигает платформу влево"
+  (interactive)
+  (setq *cdg-platform*
+        (cdg-platform-move *cdg-platform*
+                           (- (cdg-platform-speed *cdg-platform*))))
+  (when *cdg-ball-on-platform*
+    (setq *cdg-ball*
+          (cdg-return-ball-to-platform *cdg-ball*
+                                 *cdg-platform*
+                                 *cdg-draw-buffer*)))
+  (cdg-draw-game))
+
+(defun cdg-right ()
+  "Двигает платформу вправо"
+  (interactive)
+  (setq *cdg-platform*
+        (cdg-platform-move *cdg-platform*
+                           (+ (cdg-platform-speed *cdg-platform*))))
+  (when *cdg-ball-on-platform*
+    (cdg-return-ball-to-platform *cdg-ball*
+                                 *cdg-platform*
+                                 *cdg-draw-buffer*))
+  (cdg-draw-game))
+
+(defun cdg-action ()
+  "Отпускает мяч с платформы"
+  (interactive)
+  (setq *cdg-ball-on-platform* nil))
+
+(defun cdg-init ()
+  "Собственно инициализация игры."
+  (let ((inhibit-read-only t))
+    (setq-local truncate-lines t)
+    (setq *cdg-game-board*
+          (cdg-build-game-board *cdg-code-buffer*))
+    (setq *cdg-draw-buffer*
+          (cdg-make-char-buffer (window-body-height)
+                                (window-body-width)
+                                *cdg-space-sym*))
+    (setq *cdg-platform*
+          (cdg-make-platform
+           (/ (cdg-char-buf-col-count *cdg-game-board*) 2.0)
+           5.0
+           1.0
+           ?-))
+    (setq *cdg-ball*
+          (cdg-return-ball-to-platform (cdg-make-ball [0 0] [-0.5 -0.5])
+                                       *cdg-platform*
+                                       *cdg-draw-buffer*))
+
+    (cdg-debug (format "Создано игровое поле %d x %d"
+                       (cdg-char-buf-row-count *cdg-game-board*)
+                       (cdg-char-buf-col-count *cdg-game-board*)))
+    (cdg-debug (format "Создан буфер отрисовки %d x %d"
+                       (cdg-char-buf-row-count *cdg-draw-buffer*)
+                       (cdg-char-buf-col-count *cdg-draw-buffer*)))
+    (cdg-debug (format "Начальное положение платформы: %d"
+                       (cdg-platform-pos *cdg-platform*)))
+    (cdg-debug (format "Начальное положение мяча: %s"
+                       (cdg-ball-pos *cdg-ball*)))))
+
+(defmacro cdg-debug (&rest body)
+  "Output debug info, if *cdg-debug* is t"
+  `(when *cdg-debug*
+     (print (concat ,@body)
+            (get-buffer-create "cdg-debug"))))
 
 (defun cdg-build-game-board (buffer)
   "Создает игровое поле на основе текста буфера."
@@ -377,95 +472,11 @@
      win-width
      *cdg-space-sym*)))
 
-(defun cdg-draw-game-board (board char-buffer start-row)
-  (dotimes (r (cdg-char-buf-row-count board))
-    (dotimes (c (cdg-char-buf-col-count board))
-      (cdg-set-char-safe char-buffer
-                         (+ r start-row)
-                         c
-                         (cdg-get-char board r c )))))
-
-(defun cdg-output-char-buffer (char-buffer)
-  "Выводит содержимое символьного буфера в
-   emacs-буфер, в текущую позицию курсора."
-  (let ((inhibit-read-only t))
-    (dotimes (r (cdg-char-buf-row-count char-buffer))
-      (insert
-       (format "%s\n"
-               (cdg-get-char-row char-buffer r))))))
-
-(defun cdg-make-ball (coord direction)
-  (list coord (cdg-normalize-2d-vec direction)))
-
-(defun cdg-ball-pos (ball)
-  "Собственно координаты центра мяча
-   в Декартовой системе координат"
-  (elt ball 0))
-
-(defun cdg-ball-direct (ball)
-  "Нормализованный вектор-направление
-   движения мяча"
-  (elt ball 1))
-
-(defun cdg-ball-move (ball step)
-  "Перемещает мяч в новую точку в
-   соответствии с его направлением"
-  (let ((pos (cdg-ball-pos ball))
-        (vec (cdg-ball-direct ball)))
-    (cdg-make-ball (vector
-                    (+ (elt pos 0) (* (elt vec 0) step))
-                    (+ (elt pos 1) (* (elt vec 1) step)))
-                   vec)))
-
-(defun cdg-return-ball-to-platform (ball platform board)
-  "Возвращает мяч на подвижную платформу. Используется
-   для начала игры"
-  (setq *cdg-ball-on-platform* t)
-  (cdg-make-ball (vector (- (cdg-char-buf-row-count board) 2)
-                         (cdg-platform-pos platform))
-                 (cdg-ball-direct ball)))
-
-(defun cdg-draw-ball (ball char-buffer)
-  (let ((ball-pos (cdg-ball-pos ball)))
-    (cdg-set-char-safe char-buffer
-                       (truncate (elt ball-pos 0))
-                       (truncate (elt ball-pos 1))
-                       ?o)))
-
-(defun cdg-make-platform (center-pos size speed symbol)
-  (list center-pos size speed symbol))
-
-(defun cdg-platform-pos (platform)
-  (first platform))
-
-(defun cdg-platform-size (platform)
-  (second platform))
-
-(defun cdg-platform-speed (platform)
-  (third platform))
-
-(defun cdg-platform-symbol (platform)
-  (fourth platform))
-
-(defun cdg-platform-move (platform value)
-  (let ((new-value (+ (cdg-platform-pos platform) value)))
-    (when (< new-value 0)
-      (setq new-value 0))
-    (cdg-make-platform new-value
-                       (cdg-platform-size platform)
-                       (cdg-platform-speed platform)
-                       (cdg-platform-symbol platform))))
-
-(defun cdg-platform-move-to (platform value)
-  (if (< value 0)
-      platform
-    (cdg-make-platform value
-                       (cdg-platform-size platform)
-                       (cdg-platform-speed platform)
-                       (cdg-platform-symbol platform))))
+;; Функции отрисовки игровых объектов
 
 (defun cdg-draw-platform (platform char-buffer)
-  ""
+  "Отрисовка игровой платформы, находящейся на
+   самой нижней строке."
   (let* ((half-size (/ (cdg-platform-size platform) 2))
          (last-row  (1- (cdg-char-buf-row-count char-buffer)))
          (start-pos (truncate (- (cdg-platform-pos platform)
@@ -475,6 +486,23 @@
                          last-row
                          (+ start-pos i)
                          (cdg-platform-symbol platform)))))
+
+(defun cdg-draw-ball (ball char-buffer)
+  "Отрисова игрового мяча. Представляется одним
+   единственным символом в указанной позиции"
+  (let ((ball-pos (cdg-ball-pos ball)))
+    (cdg-set-char-safe char-buffer
+                       (truncate (elt ball-pos 0))
+                       (truncate (elt ball-pos 1))
+                       ?o)))
+
+(defun cdg-draw-game-board (board char-buffer start-row)
+  (dotimes (r (cdg-char-buf-row-count board))
+    (dotimes (c (cdg-char-buf-col-count board))
+      (cdg-set-char-safe char-buffer
+                         (+ r start-row)
+                         c
+                         (cdg-get-char board r c )))))
 
 (defun cdg-draw-game ()
   "Собственно отрисовка всех элементов игры"
@@ -493,12 +521,6 @@
 
     (cdg-output-char-buffer *cdg-draw-buffer*)
     (beginning-of-buffer)))
-
-(defmacro cdg-debug (&rest body)
-  "Output debug info, if *cdg-debug* is t"
-  `(when *cdg-debug*
-     (print (concat ,@body)
-            (get-buffer-create "cdg-debug"))))
 
 (defun cdg-main-loop ()
   "Главный цикл игры"
