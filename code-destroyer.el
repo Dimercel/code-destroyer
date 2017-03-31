@@ -113,10 +113,10 @@
 
 ;; Векторы и работа с ними
 
-(defun cdg-normalize-2d-vec (vec)
+(defun cdg-normalize-vec (vec)
   "Нормализует 2-х мерный вектор"
-  (let* ((x (elt vec 0))
-         (y (elt vec 1))
+  (let* ((x (aref vec 0))
+         (y (aref vec 1))
          (inv-len (/ 1.0 (sqrt (+ (* x x) (* y y))))))
     (vector (* x inv-len) (* y inv-len))))
 
@@ -197,7 +197,7 @@
 
 
 (defun cdg-make-ball (coord direction)
-  (list coord (cdg-normalize-2d-vec direction)))
+  (list coord (cdg-normalize-vec direction)))
 
 (defun cdg-ball-pos (ball)
   "Собственно координаты центра мяча
