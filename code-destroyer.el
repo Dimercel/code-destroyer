@@ -177,10 +177,23 @@
            (> (abs line-y) (abs (elt ray-start 1))))
       (let ((line-dist (abs (- line-y (elt ray-start 1)))))
         (vector (+ (elt ray-start 0)
-                   (* (/ line-dist (elt ray-direction 1))
+                   (* (abs (/ line-dist (elt ray-direction 1)))
                       (elt ray-direction 0)))
                 line-y))
     nil))
+
+(defun cdg-vline-ray-intersection (line-x ray-start ray-direction)
+  "Вычисляет точку пересечения вертикальной прямой и луча. Вектор
+   ray-direction должен быть нормированным"
+  (if (and (same-signp line-x (elt ray-direction 0))
+           (> (abs line-x) (abs (elt ray-start 0))))
+      (let ((line-dist (abs (- line-x (elt ray-start 0)))))
+        (vector line-x
+                (+ (elt ray-start 1)
+                   (* (abs (/ line-dist (elt ray-direction 0)))
+                      (elt ray-direction 1)))))
+    nil))
+
 
 (defun cdg-init ()
   "Собственно инициализация игры."
