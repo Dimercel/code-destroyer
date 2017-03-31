@@ -97,6 +97,20 @@
 ;;; Геометрические функции в Декартовой системе координат
 
 
+(defun cdg-make-point (x y)
+  "Создает точку в Декартовой системе координат"
+  (vector x y))
+
+(defun cdg-make-point-by-vec (vec)
+  "Создает точку по 2-х мерному вектору"
+  (cdg-make-point (aref vec 0) (aref vec 1)))
+
+(defun cdg-point-x (point)
+   (aref point 0))
+
+(defun cdg-point-y (point)
+  (aref point 1))
+
 ;; Векторы и работа с ними
 
 (defun cdg-normalize-2d-vec (vec)
