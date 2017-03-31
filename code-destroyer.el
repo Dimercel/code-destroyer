@@ -137,6 +137,7 @@
 ;; Прямоугольник параллельный оси Ox
 
 (defun cdg-make-rect (left-top right-bottom)
+  "Строит прямоугольник по двум переданным точкам"
   (list left-top right-bottom))
 
 (defun cdg-rect-left-top (rect)
@@ -146,23 +147,23 @@
   (second rect))
 
 (defun cdg-rect-min-x (rect)
-  (elt (first rect) 0))
+  (cdg-point-x (first rect)))
 
 (defun cdg-rect-max-x (rect)
-  (elt (second rect) 0))
+  (cdg-point-x (second rect)))
 
 (defun cdg-rect-min-y (rect)
-  (elt (second rect) 1))
+  (cdg-point-y (second rect)))
 
 (defun cdg-rect-max-y (rect)
-  (elt (first rect) 1))
+  (cdg-point-y (first rect)))
 
 ;; Функции, тестирующие разного рода пересечения
 
 (defun cdg-rect-point-test (rect point)
   "Принадлежит ли точка прямоугольнику?"
-  (let ((x (elt point 0))
-        (y (elt point 1)))
+  (let ((x (cdg-point-x point))
+        (y (cdg-point-y point)))
     (and (<= x (cdg-rect-max-x rect))
          (>= x (cdg-rect-min-x rect))
          (<= y (cdg-rect-max-y rect))
@@ -215,8 +216,8 @@
   (let ((pos (cdg-ball-pos ball))
         (vec (cdg-ball-direct ball)))
     (cdg-make-ball (vector
-                    (+ (elt pos 0) (* (elt vec 0) step))
-                    (+ (elt pos 1) (* (elt vec 1) step)))
+                    (+ (cdg-point-x pos) (* (elt vec 0) step))
+                    (+ (cdg-point-y pos) (* (elt vec 1) step)))
                    vec)))
 
 (defun cdg-return-ball-to-platform (ball platform board)
