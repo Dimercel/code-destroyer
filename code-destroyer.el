@@ -198,6 +198,8 @@
 
 
 (defun cdg-make-ball (coord direction)
+  "Игровой мяч уничтожающий блоки и
+   отражаемый платформой"
   (list coord (cdg-normalize-vec direction)))
 
 (defun cdg-ball-pos (ball)
@@ -220,13 +222,6 @@
                     (+ (cdg-point-y pos) (* (elt vec 1) step)))
                    vec)))
 
-(defun cdg-return-ball-to-platform (ball platform board)
-  "Возвращает мяч на подвижную платформу. Используется
-   для начала игры"
-  (setq *cdg-ball-on-platform* t)
-  (cdg-make-ball (vector (- (cdg-char-buf-row-count board) 2)
-                         (cdg-platform-pos platform))
-                 (cdg-ball-direct ball)))
 
 (defun cdg-make-platform (center-pos size speed symbol)
   (list center-pos size speed symbol))
@@ -260,6 +255,13 @@
                        (cdg-platform-speed platform)
                        (cdg-platform-symbol platform))))
 
+(defun cdg-return-ball-to-platform (ball platform board)
+  "Возвращает мяч на подвижную платформу. Используется
+   для начала игры"
+  (setq *cdg-ball-on-platform* t)
+  (cdg-make-ball (vector (- (cdg-char-buf-row-count board) 2)
+                         (cdg-platform-pos platform))
+                 (cdg-ball-direct ball)))
 
 
 ;;; Код ниже описывает символьный буфер. Такой буфер состоит из одиночных
