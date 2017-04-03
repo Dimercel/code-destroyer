@@ -337,25 +337,21 @@
   "Представляет прямоугольный массив из текстовых символов. Хранится одной большой строкой.
    ROWS - кол-во строк, COLS - кол-во столбцов, FILL-CHAR - символ-заполнитель, которым
    будет инициализорован буфер."
-  (cond
-   ((or (eql rows 0) (eql cols 0))
-    (list "" 0 0))
-   (t (list (make-string (* rows cols) fill-char)
-            rows
-            cols))))
+  (cdg-make-char-buffer-by-string (make-string (* rows cols) fill-char)
+                                  cols
+                                  fill-char))
 
-(defun cdg-make-char-buffer-by-string (str col-count fill-char)
-  (cond
-   ((or (= (length str) 0) (= col-count 0))
-    (list "" 0 0))
-   (t
-    (let ((row-count (/ (length str) col-count)))
-      (when (not (equalp 0 (mod (length str) col-count)))
-        (setq row-count (1+ row-count))
-        (setq str (cdg-to-length str
-                                 (* row-count col-count)
-                                 fill-char)))
-      (list str row-count col-count)))))
+(defun cdg-make-char-buffer-by-string (str cols fill-char)
+  (let ((suffix-len (mod (length str) cols)))
+    (cond
+     ((or (= (length str) 0) (= cols 0)) nil)
+     ((/= suffix-len 0) (vector
+                         (cdg-to-length str
+                                        (+ (length str) (- cols suffix-len))
+                                        fill-char)
+                         cols))
+     (t (vector str cols)))))
+
 
 (defun cdg-resize-char-buffer (buffer row-count col-count fill-char)
   "Изменяет размер символьного буфера. Если размер становится больше,
@@ -376,18 +372,18 @@
                                     col-count
                                     fill-char)))
 
-(defun cdg-char-buf-row-count (buffer)
-  (second buffer))
+(defun cdg-char-buffer-rows (buffer)
+  "Количество строк в символьном буфере"
+  (truncate (/ (length (aref buffer 0)) (aref buffer 1))))
 
-(defun cdg-char-buf-col-count (buffer)
-  (third buffer))
+(defun cdg-char-buffer-cols (buffer)
+  "Количество столбцов символьного буфера"
+  (aref buffer 1))
 
-(defun cdg-char-buf-size (buffer)
-  (* (cdg-char-buf-row-count buffer)
-     (cdg-char-buf-col-count buffer)))
-
-(defun cdg-char-buf-body (buffer)
-  (first buffer))
+(defun cdg-char-buffer-size (buffer)
+  "Общее количество символов в буфере"
+  (* (cdg-char-buffer-rows buffer)
+     (cdg-char-buffer-cols buffer)))
 
 (defun cdg-erase-char-buffer (buffer fill-char)
   ""
@@ -395,23 +391,29 @@
                         (cdg-char-buf-col-count buffer)
                         fill-char))
 
-(defun cdg-get-char (char-buffer row col)
-  (elt (cdg-char-buf-body char-buffer)
-       (cdg-2d-to-1d-inx char-buffer row col)))
+(defun cdg-get-char (buffer row col)
+  "Вернет символ находящийся в позиции row, col.
+   Выход за пределы буфера не проверяется"
+  (let ((str (aref buffer 0)))
+    (aref str
+          (+ (* row
+                (cdg-char-buffer-cols buffer))
+             col))))
 
 (defun cdg-set-char (char-buffer row col new-value)
   (aset (cdg-char-buf-body char-buffer)
         (cdg-2d-to-1d-inx char-buffer row col)
         new-value))
 
-(defun cdg-get-char-safe (char-buffer row col &optional bad-value)
+(defun cdg-get-char-safe (buffer row col &optional bad-value)
   "Безопасная версия cdg-get-char возвращающая BAD-VALUE в случае
    отсутсвия указанного индекса"
-  (let ((size (cdg-char-buf-size char-buffer))
-        (1d-inx (cdg-2d-to-1d-inx char-buffer row col)))
-    (if (and (not (null 1d-inx))
-             (< 1d-inx size))
-      (elt (cdg-char-buf-body char-buffer) 1d-inx)
+  (let ((size (cdg-char-buffer-size buffer))
+        (char-inx (+ (* row
+                        (cdg-char-buffer-cols buffer))
+                     col)))
+    (if (and (<= char-inx size) (> row 0) (> col 0))
+        (cdg-get-char buffer row col)
       bad-value)))
 
 (defun cdg-set-char-safe (char-buffer row col new-value)
