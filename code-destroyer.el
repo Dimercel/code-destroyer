@@ -111,6 +111,13 @@
 (defun cdg-point-y (point)
   (aref point 1))
 
+(defun cdg-point-inc (point inc &optional inc2)
+  "Дает точке point приращение inc(скаляр)"
+  (if (null inc2)
+      (cdg-point-inc point inc inc)
+      (cdg-make-point (+ (cdg-point-x point) inc)
+                      (+ (cdg-point-y point) inc2))))
+
 ;; Векторы и работа с ними
 
 (defun cdg-normalize-vec (vec)
@@ -157,6 +164,14 @@
 
 (defun cdg-rect-max-y (rect)
   (cdg-point-y (first rect)))
+
+(defun cdg-rect-width (rect)
+  (abs (- (cdg-rect-max-x rect)
+          (cdg-rect-min-x rect))))
+
+(defun cdg-rect-height (rect)
+  (abs (- (cdg-rect-max-y rect)
+          (cdg-rect-min-y rect))))
 
 ;; Функции, тестирующие разного рода пересечения
 
@@ -221,6 +236,26 @@
                     (+ (cdg-point-x pos) (* (elt vec 0) step))
                     (+ (cdg-point-y pos) (* (elt vec 1) step)))
                    vec)))
+
+;; Создает игровой бокс. Он представляет собой препятствие на пути игрового
+;; мяча. Геометрически, box описывется квадратом с координатами левого верхнего
+;; угла coord.
+(defun cdg-make-box (coord size char)
+  (vector (cdg-make-rect coord
+                         (cdg-point-inc coord size (* size -1)))
+          char))
+
+(defun cdg-box-pos (box)
+  (cdg-rect-left-top (aref box 0)))
+
+(defun cdg-box-rect (box)
+  (aref box 0))
+
+(defun cdg-box-size (box)
+  (cdg-rect-width (cdg-box-rect box)))
+
+(defun cdg-box-char (box)
+  (aref box 1))
 
 
 (defun cdg-make-platform (center-pos size speed symbol)
