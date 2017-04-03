@@ -215,27 +215,27 @@
 (defun cdg-make-ball (coord direction)
   "Игровой мяч уничтожающий блоки и
    отражаемый платформой"
-  (list coord (cdg-normalize-vec direction)))
+  (vector coord (cdg-normalize-vec direction)))
 
 (defun cdg-ball-pos (ball)
   "Собственно координаты центра мяча
    в Декартовой системе координат"
-  (elt ball 0))
+  (aref ball 0))
 
 (defun cdg-ball-direct (ball)
   "Нормализованный вектор-направление
    движения мяча"
-  (elt ball 1))
+  (aref ball 1))
 
 (defun cdg-ball-move (ball step)
   "Перемещает мяч в новую точку в
    соответствии с его направлением"
   (let ((pos (cdg-ball-pos ball))
-        (vec (cdg-ball-direct ball)))
-    (cdg-make-ball (vector
-                    (+ (cdg-point-x pos) (* (elt vec 0) step))
-                    (+ (cdg-point-y pos) (* (elt vec 1) step)))
-                   vec)))
+        (dir (cdg-ball-direct ball)))
+    (cdg-make-ball (cdg-point-inc pos
+                                  (* (aref dir 0) step)
+                                  (* (aref dir 1) step))
+                   dir)))
 
 ;; Создает игровой бокс. Он представляет собой препятствие на пути игрового
 ;; мяча. Геометрически, box описывется квадратом с координатами левого верхнего
