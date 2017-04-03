@@ -64,11 +64,16 @@
 (defvar *cdg-score* 0
   "Количество игровых очков игрока")
 
-(defconst *cdg-min-platform-space* 7
+(defconst +cdg-min-platform-space+ 7
   "Определяет минимальное начальное расстояние между
    игровым полем и платформой игрока")
 
-(defconst *cdg-space-sym* ? )
+(defconst +cdg-space-sym+ ? )
+
+(defconst +cdg-game-unit+ 10.0
+  "Игровая единица масштаба. Игровое поле целиком состоит из квадратов
+  одинаковых размеров, данная константа представляет размер стороны такого
+  элементарного квадрата.")
 
 (defconst *cdg-debug* nil
   "Переменная отвечает за режим вывода отладочной ин-ии")
@@ -412,7 +417,7 @@
     (when (< row-inx row-count)
         (setq char-buffer
               (list (concat (substring body 0 row-begin)
-                            (cdg-to-length row-data col-count *cdg-space-sym*)
+                            (cdg-to-length row-data col-count +cdg-space-sym+)
                             (substring body row-end))
                     row-count
                     col-count)))))
@@ -469,7 +474,7 @@
     (setq *cdg-draw-buffer*
           (cdg-make-char-buffer (window-body-height)
                                 (window-body-width)
-                                *cdg-space-sym*))
+                                +cdg-space-sym+))
     (setq *cdg-platform*
           (cdg-make-platform
            (/ (cdg-char-buf-col-count *cdg-game-board*) 2.0)
@@ -514,15 +519,15 @@
                     (cdg-to-length
                      (buffer-substring-no-properties begin-line (point))
                      win-width
-                     *cdg-space-sym*)))
+                     +cdg-space-sym+)))
       (forward-line 1))
     (cdg-resize-char-buffer
      (cdg-make-char-buffer-by-string buf-text-with-limit
                                      win-width
-                                     *cdg-space-sym*)
-     (- (window-body-height) *cdg-min-platform-space*)
+                                     +cdg-space-sym+)
+     (- (window-body-height) +cdg-min-platform-space+)
      win-width
-     *cdg-space-sym*)))
+     +cdg-space-sym+)))
 
 ;; Функции отрисовки игровых объектов
 
@@ -563,7 +568,7 @@
     (erase-buffer)
     (setq *cdg-draw-buffer*
           (cdg-erase-char-buffer *cdg-draw-buffer*
-                                 *cdg-space-sym*))
+                                 +cdg-space-sym+))
 
     (cdg-draw-game-board *cdg-game-board*
                          *cdg-draw-buffer*
