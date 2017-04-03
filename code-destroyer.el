@@ -88,7 +88,7 @@
               (make-string (- new-length old-length)
                            fill-char)))))
 
-(defun same-signp (&rest numbers)
+(defun cdg-same-signp (&rest numbers)
   "Все указанные числа одного знака?"
   (or (every (lambda (x) (>= x 0)) numbers)
       (every (lambda (x) (<= x 0)) numbers)))
@@ -172,7 +172,7 @@
 (defun cdg-hline-ray-intersection (line-y ray-start ray-direction)
   "Вычисляет точку пересечения горизонтальной прямой и луча. Вектор
    ray-direction должен быть нормированным"
-  (if (and (same-signp line-y (elt ray-direction 1))
+  (if (and (cdg-same-signp line-y (elt ray-direction 1))
            (> (abs line-y) (abs (elt ray-start 1))))
       (let ((line-dist (abs (- line-y (elt ray-start 1)))))
         (vector (+ (elt ray-start 0)
@@ -184,7 +184,7 @@
 (defun cdg-vline-ray-intersection (line-x ray-start ray-direction)
   "Вычисляет точку пересечения вертикальной прямой и луча. Вектор
    ray-direction должен быть нормированным"
-  (if (and (same-signp line-x (elt ray-direction 0))
+  (if (and (cdg-same-signp line-x (elt ray-direction 0))
            (> (abs line-x) (abs (elt ray-start 0))))
       (let ((line-dist (abs (- line-x (elt ray-start 0)))))
         (vector line-x
