@@ -66,7 +66,8 @@
 
 (defconst +cdg-min-platform-space+ 7
   "Определяет минимальное начальное расстояние между
-   игровым полем и платформой игрока")
+   игровым полем и платформой игрока. Измереятся в игровых
+   единицах масштаба")
 
 (defconst +cdg-space-sym+ ? )
 
@@ -192,25 +193,25 @@
 (defun cdg-hline-ray-intersection (line-y ray-start ray-direction)
   "Вычисляет точку пересечения горизонтальной прямой и луча. Вектор
    ray-direction должен быть нормированным"
-  (if (and (cdg-same-signp line-y (elt ray-direction 1))
-           (> (abs line-y) (abs (elt ray-start 1))))
-      (let ((line-dist (abs (- line-y (elt ray-start 1)))))
-        (vector (+ (elt ray-start 0)
-                   (* (abs (/ line-dist (elt ray-direction 1)))
-                      (elt ray-direction 0)))
+  (if (and (cdg-same-signp line-y (aref ray-direction 1))
+           (> (abs line-y) (abs (cdg-point-y ray-start))))
+      (let ((line-dist (abs (- line-y (cdg-point-y ray-start)))))
+        (vector (+ (cdg-point-x ray-start)
+                   (* (abs (/ line-dist (aref ray-direction 1)))
+                      (aref ray-direction 0)))
                 line-y))
     nil))
 
 (defun cdg-vline-ray-intersection (line-x ray-start ray-direction)
   "Вычисляет точку пересечения вертикальной прямой и луча. Вектор
    ray-direction должен быть нормированным"
-  (if (and (cdg-same-signp line-x (elt ray-direction 0))
-           (> (abs line-x) (abs (elt ray-start 0))))
-      (let ((line-dist (abs (- line-x (elt ray-start 0)))))
+  (if (and (cdg-same-signp line-x (aref ray-direction 0))
+           (> (abs line-x) (abs (cdg-point-x ray-start))))
+      (let ((line-dist (abs (- line-x (cdg-point-x ray-start)))))
         (vector line-x
-                (+ (elt ray-start 1)
-                   (* (abs (/ line-dist (elt ray-direction 0)))
-                      (elt ray-direction 1)))))
+                (+ (cdg-point-y ray-start)
+                   (* (abs (/ line-dist (aref ray-direction 0)))
+                      (aref ray-direction 1)))))
     nil))
 
 
