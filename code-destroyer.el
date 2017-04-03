@@ -304,6 +304,30 @@
                          (cdg-platform-pos platform))
                  (cdg-ball-direct ball)))
 
+(defun cdg-zone (row-count col-count)
+  "Определяет ограниченную зону, в которой происходит игра.
+   Не один игровой объект находящийся за ее пределами не отображается."
+  (cdg-make-rect (cdg-make-point 0 (* row-count +cdg-game-unit+))
+                 (cdg-make-point (* col-count +cdg-game-unit+) 0)))
+
+(defun cdg-zone-rect (zone)
+  "Возвращает ограничивающий прямоуглольник зоны"
+  zone)
+
+(defun cdg-zone-rows (zone)
+  "Количество строк в игровой зоне. Выражается в игровых единицах"
+  (/ (truncate (cdg-rect-height (cdg-zone-rect zone)) +cdg-game-unit+)))
+
+(defun cdg-zone-cols (zone)
+  "Количество столбцов в игровой зоне. Выражается в игровых единицах"
+  (/ (truncate (cdg-rect-width (cdg-zone-rect zone)) +cdg-game-unit+)))
+
+(defun cdg-zone-point-coord (zone point)
+  "Возвращает координаты квадрата, в котором содержится точка."
+  (if (cdg-rect-point-test (cdg-zone-rect zone) point)
+      (cdg-make-point (truncate (/ (cdg-point-x point) +cdg-game-unit+))
+                      (truncate (/ (cdg-point-y point) +cdg-game-unit+)))
+    nil))
 
 ;;; Код ниже описывает символьный буфер. Такой буфер состоит из одиночных
 ;;; символов и является двумерным.
