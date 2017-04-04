@@ -99,6 +99,10 @@
   (or (every (lambda (x) (>= x 0)) numbers)
       (every (lambda (x) (<= x 0)) numbers)))
 
+(defun cdg-2d->1d (row col col-count)
+  "Конвертирует индекс двумерного массива в одномерный"
+  (+ (* row col-count) col))
+
 
 ;;; Геометрические функции в Декартовой системе координат
 
@@ -372,82 +376,48 @@
                                     col-count
                                     fill-char)))
 
-(defun cdg-char-buffer-rows (buffer)
-  "Количество строк в символьном буфере"
-  (truncate (/ (length (aref buffer 0)) (aref buffer 1))))
+(defun cdg-char-buffer-size (buffer)
+  "Общее количество символов в буфере"
+  (length (aref buffer 0)))
 
 (defun cdg-char-buffer-cols (buffer)
   "Количество столбцов символьного буфера"
   (aref buffer 1))
 
-(defun cdg-char-buffer-size (buffer)
-  "Общее количество символов в буфере"
-  (* (cdg-char-buffer-rows buffer)
-     (cdg-char-buffer-cols buffer)))
-
-(defun cdg-erase-char-buffer (buffer fill-char)
-  ""
-  (cdg-make-char-buffer (cdg-char-buf-row-count buffer)
-                        (cdg-char-buf-col-count buffer)
-                        fill-char))
+(defun cdg-char-buffer-rows (buffer)
+  "Количество строк в символьном буфере"
+  (truncate (/ (cdg-char-buffer-size buffer)
+               (cdg-char-buffer-cols buffer))))
 
 (defun cdg-get-char (buffer row col)
   "Вернет символ находящийся в позиции row, col.
    Выход за пределы буфера не проверяется"
   (let ((str (aref buffer 0)))
-    (aref str
-          (+ (* row
-                (cdg-char-buffer-cols buffer))
-             col))))
+    (aref str (cdg-2d->1d row col (cdg-char-buffer-cols buffer)))))
 
-(defun cdg-set-char (char-buffer row col new-value)
-  (aset (cdg-char-buf-body char-buffer)
-        (cdg-2d-to-1d-inx char-buffer row col)
+(defun cdg-set-char (buffer row col new-value)
+  (aset (aref buffer 0)
+        (cdg-2d->1d row col (cdg-char-buffer-cols buffer))
         new-value))
 
 (defun cdg-get-char-safe (buffer row col &optional bad-value)
   "Безопасная версия cdg-get-char возвращающая BAD-VALUE в случае
    отсутсвия указанного индекса"
   (let ((size (cdg-char-buffer-size buffer))
-        (char-inx (+ (* row
-                        (cdg-char-buffer-cols buffer))
-                     col)))
-    (if (and (<= char-inx size) (> row 0) (> col 0))
+        (char-inx (cdg-2d->1d row col (cdg-char-buffer-cols buffer))))
+    (if (and (< char-inx size) (> row 0) (> col 0))
         (cdg-get-char buffer row col)
       bad-value)))
 
-(defun cdg-set-char-safe (char-buffer row col new-value)
+(defun cdg-set-char-safe (buffer row col new-value)
   "Безопасная версия cdg-set-char возвращающая NIL в случае
    отсутсвия указанного индекса. Не присваивает значения в
    случае не корректного индекса"
-  (let ((size (cdg-char-buf-size char-buffer))
-        (1d-inx (cdg-2d-to-1d-inx char-buffer row col)))
-    (if (and (not (null 1d-inx))
-             (< 1d-inx size))
-        (aset (cdg-char-buf-body char-buffer) 1d-inx new-value)
+  (let ((size (cdg-char-buffer-size buffer))
+        (char-inx (cdg-2d->1d row col (cdg-char-buffer-cols buffer))))
+    (if (and (< char-inx size) (> row 0) (> col 0))
+        (cdg-set-char buffer row col new-value)
       nil)))
-
-(defun cdg-get-char-row (char-buffer row)
-  (let* ((start (cdg-2d-to-1d-inx char-buffer row 0))
-         (end   (+ start (cdg-char-buf-col-count char-buffer))))
-    (if (< row (cdg-char-buf-row-count char-buffer))
-        (substring (cdg-char-buf-body char-buffer) start end)
-      nil)))
-
-; TODO: do correct work
-(defun cdg-set-char-row (char-buffer row-inx row-data)
-  (let* ((row-begin (cdg-2d-to-1d-inx char-buffer row-inx 0))
-         (col-count (cdg-char-buf-col-count char-buffer))
-         (row-end   (+ row-begin col-count))
-         (row-count (cdg-char-buf-row-count char-buffer))
-         (body      (cdg-char-buf-body char-buffer)))
-    (when (< row-inx row-count)
-        (setq char-buffer
-              (list (concat (substring body 0 row-begin)
-                            (cdg-to-length row-data col-count +cdg-space-sym+)
-                            (substring body row-end))
-                    row-count
-                    col-count)))))
 
 (defun cdg-output-char-buffer (char-buffer)
   "Выводит содержимое символьного буфера в
