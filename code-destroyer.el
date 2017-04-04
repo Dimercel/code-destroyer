@@ -269,45 +269,40 @@
 (defun cdg-box-char (box)
   (aref box 1))
 
-
+;; Описывает игровую платформу. Она отбивает мяч. В начале игры мяч находится на
+;; платформе
 (defun cdg-make-platform (center-pos size speed symbol)
-  (list center-pos size speed symbol))
+  (vector center-pos size speed symbol))
 
 (defun cdg-platform-pos (platform)
-  (first platform))
+  (aref platform 0))
 
 (defun cdg-platform-size (platform)
-  (second platform))
+  (aref platform 1))
 
 (defun cdg-platform-speed (platform)
-  (third platform))
+  (aref platform 2))
 
 (defun cdg-platform-symbol (platform)
-  (fourth platform))
+  (aref platform 3))
 
-(defun cdg-platform-move (platform value)
-  (let ((new-value (+ (cdg-platform-pos platform) value)))
-    (when (< new-value 0)
-      (setq new-value 0))
-    (cdg-make-platform new-value
-                       (cdg-platform-size platform)
-                       (cdg-platform-speed platform)
-                       (cdg-platform-symbol platform))))
+(defun cdg-platform-move (platform step)
+  "Сдвигает платформу на шаг, величиной step. Если step - положителен,
+   то сдвиг вправо, иначе влево."
+  (let ((new-value (+ (cdg-platform-pos platform) step)))
+    (aset platform 0 new-value)))
 
 (defun cdg-platform-move-to (platform value)
-  (if (< value 0)
-      platform
-    (cdg-make-platform value
-                       (cdg-platform-size platform)
-                       (cdg-platform-speed platform)
-                       (cdg-platform-symbol platform))))
+  "Передвигает платформу так, чтобы позиция
+   центра совпадала со значением value"
+  (aset platform 0 value))
 
-(defun cdg-return-ball-to-platform (ball platform board)
+(defun cdg-return-ball-to-platform (ball platform zone)
   "Возвращает мяч на подвижную платформу. Используется
    для начала игры"
   (setq *cdg-ball-on-platform* t)
-  (cdg-make-ball (vector (- (cdg-char-buf-row-count board) 2)
-                         (cdg-platform-pos platform))
+  (cdg-make-ball (cdg-make-point (- (cdg-zone-rows zone) 2)
+                                 (cdg-platform-pos platform))
                  (cdg-ball-direct ball)))
 
 (defun cdg-zone (row-count col-count)
