@@ -239,15 +239,23 @@
    движения мяча"
   (aref ball 1))
 
+(defun cdg-ball-move-to (ball coord)
+  "Перемещает мяч в точку coord"
+  (aset ball 0 coord))
+
 (defun cdg-ball-move (ball step)
   "Перемещает мяч в новую точку в
    соответствии с его направлением"
   (let ((pos (cdg-ball-pos ball))
         (dir (cdg-ball-direct ball)))
-    (cdg-make-ball (cdg-point-inc pos
-                                  (* (aref dir 0) step)
-                                  (* (aref dir 1) step))
-                   dir)))
+    (cdg-ball-move-to ball
+                      (cdg-point-inc pos
+                                     (* (aref dir 0) step)
+                                     (* (aref dir 1) step)))))
+
+(defun cdg-ball-change-direct (ball direct)
+  "Меняет направление движения мяча"
+  (aset ball 1 (cdg-normalize-vec direct)))
 
 ;; Создает игровой бокс. Он представляет собой препятствие на пути игрового
 ;; мяча. Геометрически, box описывется квадратом с координатами левого верхнего
