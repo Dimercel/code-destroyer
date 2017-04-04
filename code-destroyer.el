@@ -298,7 +298,7 @@
   "Сдвигает платформу на шаг, величиной step. Если step - положителен,
    то сдвиг вправо, иначе влево."
   (let ((new-value (+ (cdg-platform-pos platform) step)))
-    (aset platform 0 new-value)))
+    (cdg-platform-move-to platform new-value)))
 
 (defun cdg-platform-move-to (platform value)
   "Передвигает платформу так, чтобы позиция
