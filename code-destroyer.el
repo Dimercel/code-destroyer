@@ -101,7 +101,9 @@
 
 (defun cdg-2d->1d (row col col-count)
   "Конвертирует индекс двумерного массива в одномерный"
-  (+ (* row col-count) col))
+  (if (< col col-count)
+      (+ (* row col-count) col)
+    nil))
 
 
 ;;; Геометрические функции в Декартовой системе координат
@@ -346,35 +348,17 @@
                                   fill-char))
 
 (defun cdg-make-char-buffer-by-string (str cols fill-char)
-  (let ((suffix-len (mod (length str) cols)))
-    (cond
-     ((or (= (length str) 0) (= cols 0)) nil)
-     ((/= suffix-len 0) (vector
-                         (cdg-to-length str
-                                        (+ (length str) (- cols suffix-len))
-                                        fill-char)
-                         cols))
-     (t (vector str cols)))))
-
-
-(defun cdg-resize-char-buffer (buffer row-count col-count fill-char)
-  "Изменяет размер символьного буфера. Если размер становится больше,
-   то недостающие позиции заполняются символом-заполнителем"
-  (let ((old-row-count (cdg-char-buf-row-count buffer))
-        (old-col-count (cdg-char-buf-col-count buffer))
-        (result-body   ""))
-    ; сначала приводим все строки к единой длине
-    (dotimes (r old-row-count)
-      (setq result-body
-            (concat result-body
-                    (cdg-to-length (cdg-get-char-row buffer r)
-                                   col-count
-                                   fill-char))))
-    (cdg-make-char-buffer-by-string (cdg-to-length result-body
-                                                   (* row-count col-count)
-                                                   fill-char)
-                                    col-count
-                                    fill-char)))
+  (if (/= cols 0)
+      (let ((suffix-len (mod (length str) cols)))
+        (cond
+         ((or (= (length str) 0) (= cols 0)) nil)
+         ((/= suffix-len 0) (vector
+                             (cdg-to-length str
+                                            (+ (length str) (- cols suffix-len))
+                                            fill-char)
+                             cols))
+         (t (vector str cols))))
+    nil))
 
 (defun cdg-char-buffer-size (buffer)
   "Общее количество символов в буфере"
@@ -419,14 +403,21 @@
         (cdg-set-char buffer row col new-value)
       nil)))
 
-(defun cdg-output-char-buffer (char-buffer)
+(defun cdg-get-char-row (buffer row)
+  "Вернет строку из символьного буфера в позиции row"
+  (let ((col-count (cdg-char-buffer-cols buffer)))
+    (substring (aref buffer 0)
+               (cdg-2d->1d row 0 col-count)
+               (1+ (cdg-2d->1d row (1- col-count) col-count)))))
+
+(defun cdg-output-char-buffer (buffer)
   "Выводит содержимое символьного буфера в
    emacs-буфер, в текущую позицию курсора."
   (let ((inhibit-read-only t))
-    (dotimes (r (cdg-char-buf-row-count char-buffer))
+    (dotimes (r (cdg-char-buffer-rows buffer))
       (insert
        (format "%s\n"
-               (cdg-get-char-row char-buffer r))))))
+               (cdg-get-char-row buffer r))))))
 
 
 ;;; Взаимодействие логики игры с Emacs
