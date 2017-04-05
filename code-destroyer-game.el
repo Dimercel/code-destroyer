@@ -90,7 +90,10 @@
                                  (cdg-platform-pos platform))
                  (cdg-ball-direct ball)))
 
-(defun cdg-zone (row-count col-count)
+;; Описывает игровую зону. Представляет собой прямоугольную область в которой
+;; происходит игра. Мяч не может покинуть пределов игровой зоны, как и любой
+;; другой игровой объект
+(defun cdg-make-zone (row-count col-count)
   "Определяет ограниченную зону, в которой происходит игра.
    Не один игровой объект находящийся за ее пределами не отображается."
   (cdg-make-rect (cdg-make-point 0 (* row-count +cdg-game-unit+))
@@ -107,6 +110,53 @@
 (defun cdg-zone-cols (zone)
   "Количество столбцов в игровой зоне. Выражается в игровых единицах"
   (/ (truncate (cdg-rect-width (cdg-zone-rect zone)) +cdg-game-unit+)))
+
+(defun cdg-zone-status-rows ()
+  "Количество строк в игровой зоне, отведенных под строку статуса"
+  1)
+
+(defun cdg-zone-space-rows ()
+  "Количество пустых строк в зоне разделяющих игровую платформу и область боксов"
+  +cdg-min-platform-space+)
+
+(defun cdg-zone-platform-rows ()
+  "Количество строк, отведенных под область перемещения платформы"
+  1)
+
+(defun cdg-zone-box-rows (zone)
+  "Количество строк, отведенных под область, где могут размещаться игровые боксы."
+  (- (cdg-zone-rows zone)
+     (+ (cdg-zone-status-rows)
+        (cdg-zone-space-rows)
+        (cdg-zone-platform-rows))))
+
+(defun cdg-zone-status-start (zone unit-type)
+  "Вернет индекс строки начала статусной зоны"
+  (let ((result-in-rows (- (cdg-zone-rows zone) 1)))
+    (if (eq unit-type :row)
+        result-in-rows
+        (* result-in-rows +cdg-game-unit+))))
+
+(defun cdg-zone-box-start (zone unit-type)
+  (let ((result-in-rows (- (cdg-zone-status-start zone :row)
+                           (cdg-zone-status-rows))))
+    (if (eq unit-type :row)
+        result-in-rows
+      (* result-in-rows +cdg-game-unit+))))
+
+(defun cdg-zone-space-start (zone unit-type)
+  (let ((result-in-rows (- (cdg-zone-box-start zone :row)
+                           (cdg-zone-box-rows zone))))
+    (if (eq unit-type :row)
+        result-in-rows
+      (* result-in-rows +cdg-game-unit+))))
+
+(defun cdg-zone-platform-start (zone unit-type)
+  (let ((result-in-rows (- (cdg-zone-space-start zone :row)
+                           (cdg-zone-space-rows))))
+    (if (eq unit-type :row)
+        result-in-rows
+      (* result-in-rows +cdg-game-unit+))))
 
 (defun cdg-zone-point-coord (zone point)
   "Возвращает координаты квадрата, в котором содержится точка."
