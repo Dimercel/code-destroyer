@@ -22,6 +22,29 @@
       (cdg-make-point (+ (cdg-point-x point) inc)
                       (+ (cdg-point-y point) inc2))))
 
+(defun cdg-point-dist-square (point1 point2)
+  "Вернет квадрат расстояния между точками"
+  (+ (expt (- (cdg-point-x point2) (cdg-point-x point1)) 2)
+     (expt (- (cdg-point-y point2) (cdg-point-y point1)) 2)))
+
+(defun cdg-point-dist (point1 point2)
+  "Высчитывет расстояние между точками"
+  (sqrt (cdg-point-dist-square point1 point2)))
+
+(defun cdg-closest-point (point other)
+  "Возвращает ближайшую к point точку из списка other"
+  (when (not (eq nil other))
+    (aref (reduce (lambda (acc x)
+                    (let ((dist (cdg-point-dist-square point x)))
+                      (if (< dist (aref acc 1))
+                          (vector x dist)
+                        acc)))
+                  other
+                  :initial-value (vector
+                                  (first other)
+                                  (cdg-point-dist-square point (first other))))
+          0)))
+
 ;; Векторы и работа с ними
 
 (defun cdg-normalize-vec (vec)
