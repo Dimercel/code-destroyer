@@ -239,31 +239,31 @@
      (print (concat ,@body)
             (get-buffer-create "cdg-debug"))))
 
-(defun cdg-build-game-board (buffer)
-  "Создает игровое поле на основе текста буфера."
+(defun cdg-make-boxes-by-buf-text (buffer start-y box-size)
+  "Строит игровые боксы на основе текста буфера. Каждый символ
+   текста рассматривается как игровой бокс"
   (switch-to-buffer buffer)
   (let ((begin-line nil)
-        (win-width (window-body-width))
-        (buf-text-with-limit ""))
+        (pos-y start-pos)
+        (boxes '()))
     (beginning-of-buffer)
     (while (not (eobp))
       (beginning-of-line)
       (setq begin-line (point))
       (end-of-line)
-      (setq buf-text-with-limit
-            (concat buf-text-with-limit
-                    (cdg-to-length
-                     (buffer-substring-no-properties begin-line (point))
-                     win-width
-                     +cdg-space-sym+)))
+      (let ((text-line (buffer-substring-no-properties begin-line (point))))
+        (dotimes (i (length text-line))
+          (when (not (eq (aref text-line i) +cdg-space-sym+))
+            (setq boxes
+                  (cons (cdg-make-box (vector (* i box-size) pos-y)
+                                      box-size
+                                      (aref text-line i))
+                        boxes)))))
+      (setq pos-y (+ pos-y +cdg-game-unit+))
       (forward-line 1))
-    (cdg-resize-char-buffer
-     (cdg-make-char-buffer-by-string buf-text-with-limit
-                                     win-width
-                                     +cdg-space-sym+)
-     (- (window-body-height) +cdg-min-platform-space+)
-     win-width
-     +cdg-space-sym+)))
+    boxes))
+
+(cdg-make-boxes-by-buf-code "cdg")
 
 ;; Функции отрисовки игровых объектов
 
