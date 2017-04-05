@@ -263,8 +263,6 @@
       (forward-line 1))
     boxes))
 
-(cdg-make-boxes-by-buf-code "cdg")
-
 ;; Функции отрисовки игровых объектов
 
 (defun cdg-draw-platform (platform char-buffer)
