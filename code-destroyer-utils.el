@@ -24,8 +24,10 @@
     nil))
 
 (defmacro with-buffer (buffer &rest body)
-  (let ((old-buffer (gensym)))
+  (let ((old-buffer (gensym))
+        (result (gensym)))
     `(let ((,old-buffer (current-buffer)))
        (switch-to-buffer ,buffer)
-       ,@body
-       (switch-to-buffer ,old-buffer))))
+       (setq ,result (progn ,@body))
+       (switch-to-buffer ,old-buffer)
+       ,result)))
