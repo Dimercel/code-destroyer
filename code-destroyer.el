@@ -49,8 +49,8 @@
   "Символьный буфер, в котором идет отрисовка всех
    элементов игры.")
 
-(defvar *cdg-game-board* nil
-  "Игровое поле. Представляет из себя текст с пробелами")
+(defvar *cdg-game-zone* nil
+  "Игровая зона. Внутри нее создаются все игровые объекты")
 
 (defvar *cdg-ball* nil
   "Игровой мяч. Хранит размеры мяча, текущее положение и
@@ -205,11 +205,10 @@
   "Собственно инициализация игры."
   (let ((inhibit-read-only t))
     (setq-local truncate-lines t)
-    (setq *cdg-game-board*
-          (cdg-build-game-board *cdg-code-buffer*))
+    (setq *cdg-game-zone* (cdg-make-zone-by-window (selected-window)))
     (setq *cdg-draw-buffer*
-          (cdg-make-char-buffer (window-body-height)
-                                (window-body-width)
+          (cdg-make-char-buffer (cdg-zone-rows *cdg-game-zone*)
+                                (cdg-zone-cols *cdg-game-zone*)
                                 +cdg-space-sym+))
     (setq *cdg-platform*
           (cdg-make-platform

@@ -102,6 +102,13 @@
   (cdg-make-rect (cdg-make-point 0 (* row-count +cdg-game-unit+))
                  (cdg-make-point (* col-count +cdg-game-unit+) 0)))
 
+(defun cdg-make-zone-by-window (window)
+  "В этом случае границы зоны вычисляются
+   на основе переданного emacs-буфера"
+  (with-selected-window window
+    (cdg-make-zone (window-body-height)
+                   (window-body-width))))
+
 (defun cdg-zone-rect (zone)
   "Возвращает ограничивающий прямоуглольник зоны"
   zone)
