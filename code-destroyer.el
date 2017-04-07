@@ -242,26 +242,25 @@
 (defun cdg-make-boxes-by-buf-text (buffer start-y box-size)
   "Строит игровые боксы на основе текста буфера. Каждый символ
    текста рассматривается как игровой бокс"
-  (switch-to-buffer buffer)
   (let ((begin-line nil)
-        (pos-y start-pos)
         (boxes '()))
-    (beginning-of-buffer)
-    (while (not (eobp))
-      (beginning-of-line)
-      (setq begin-line (point))
-      (end-of-line)
-      (let ((text-line (buffer-substring-no-properties begin-line (point))))
-        (dotimes (i (length text-line))
-          (when (not (eq (aref text-line i) +cdg-space-sym+))
-            (setq boxes
-                  (cons (cdg-make-box (vector (* i box-size) pos-y)
-                                      box-size
-                                      (aref text-line i))
-                        boxes)))))
-      (setq pos-y (+ pos-y +cdg-game-unit+))
-      (forward-line 1))
-    boxes))
+    (with-buffer buffer
+      (beginning-of-buffer)
+      (while (not (eobp))
+        (beginning-of-line)
+        (setq begin-line (point))
+        (end-of-line)
+        (let ((text-line (buffer-substring-no-properties begin-line (point))))
+          (dotimes (i (length text-line))
+            (when (not (eq (aref text-line i) +cdg-space-sym+))
+              (setq boxes
+                    (cons (cdg-make-box (vector (* i box-size) start-y)
+                                        box-size
+                                        (aref text-line i))
+                          boxes)))))
+        (setq start-y (- start-y +cdg-game-unit+))
+        (forward-line 1)))
+      boxes))
 
 ;; Функции отрисовки игровых объектов
 
