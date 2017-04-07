@@ -240,9 +240,10 @@
             (get-buffer-create "cdg-debug"))))
 
 (defun cdg-make-boxes-by-buf-text (buffer start-y box-size)
-  "Строит игровые боксы на основе текста буфера. Каждый символ
-   текста рассматривается как игровой бокс"
+  "Строит игровые боксы на основе текста буфера. Каждый символ текста
+   рассматривается как игровой бокс. Размер бокса указывается в игровых единицах"
   (let ((begin-line nil)
+        (box-size-dec (* box-size +cdg-game-unit+))
         (boxes '()))
     (with-buffer buffer
       (beginning-of-buffer)
@@ -254,11 +255,11 @@
           (dotimes (i (length text-line))
             (when (not (eq (aref text-line i) +cdg-space-sym+))
               (setq boxes
-                    (cons (cdg-make-box (vector (* i box-size) start-y)
+                    (cons (cdg-make-box (vector (* i box-size-dec) start-y)
                                         box-size
                                         (aref text-line i))
                           boxes)))))
-        (setq start-y (- start-y +cdg-game-unit+))
+        (setq start-y (- start-y box-size-dec))
         (forward-line 1)))
       boxes))
 

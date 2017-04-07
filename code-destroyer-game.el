@@ -36,11 +36,14 @@
 
 ;; Создает игровой бокс. Он представляет собой препятствие на пути игрового
 ;; мяча. Геометрически, box описывется квадратом с координатами левого верхнего
-;; угла coord.
+;; угла coord. Размер задается в условных игровых единицах
 (defun cdg-make-box (coord size char)
-  (vector (cdg-make-rect coord
-                         (cdg-point-inc coord size (* size -1)))
-          char))
+  (vector
+   (cdg-make-rect coord
+                  (cdg-point-inc coord
+                                 (* size +cdg-game-unit+)
+                                 (* (* size +cdg-game-unit+) -1)))
+   char))
 
 (defun cdg-box-pos (box)
   (cdg-rect-left-top (aref box 0)))
@@ -49,7 +52,7 @@
   (aref box 0))
 
 (defun cdg-box-size (box)
-  (cdg-rect-width (cdg-box-rect box)))
+  (/ (cdg-rect-width (cdg-box-rect box)) +cdg-game-unit+))
 
 (defun cdg-box-char (box)
   (aref box 1))
