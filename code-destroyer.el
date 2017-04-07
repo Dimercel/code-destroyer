@@ -212,14 +212,14 @@
                                 +cdg-space-sym+))
     (setq *cdg-platform*
           (cdg-make-platform
-           (/ (cdg-char-buf-col-count *cdg-game-board*) 2.0)
+           (/ (cdg-rect-width (cdg-zone-rect *cdg-game-zone*)) 2.0)
            5.0
            1.0
            ?-))
     (setq *cdg-ball*
-          (cdg-return-ball-to-platform (cdg-make-ball [0 0] [-0.5 -0.5])
+          (cdg-return-ball-to-platform (cdg-make-ball (cdg-make-point 0 0) [1 1])
                                        *cdg-platform*
-                                       *cdg-draw-buffer*))
+                                       *cdg-game-zone*))
 
     (cdg-debug (format "Создано игровое поле %d x %d"
                        (cdg-char-buf-row-count *cdg-game-board*)

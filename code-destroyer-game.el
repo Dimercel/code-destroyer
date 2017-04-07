@@ -89,7 +89,8 @@
   "Возвращает мяч на подвижную платформу. Используется
    для начала игры"
   (setq *cdg-ball-on-platform* t)
-  (cdg-make-ball (cdg-make-point (- (cdg-zone-rows zone) 2)
+  (cdg-make-ball (cdg-make-point (* (1+ (cdg-zone-platform-start zone :row))
+                                    +cdg-game-unit+)
                                  (cdg-platform-pos platform))
                  (cdg-ball-direct ball)))
 
