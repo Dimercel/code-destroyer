@@ -40,7 +40,7 @@
    фиксированный интервал времени")
 
 (defvar *cdg-code-buffer* nil
-  "Буфер, в которой расположен текст играющий роль игрвого поля")
+  "Буфер, в которой расположен текст играющий роль игрового поля")
 
 (defvar *cdg-game-buffer* nil
   "Буфер, в котором происходит сама игра")
@@ -59,6 +59,10 @@
 (defvar *cdg-ball-on-platform* t
   "Если мяч еще не в движении и лежит на платформе, то
    переменная истинна, иначе ложна")
+
+(defvar *cdg-boxes* nil
+  "Список игровых боксов, которые должен поразить мяч,
+   чтобы выиграть игру")
 
 (defvar *cdg-platform* nil
   "Игровая платформа которая отбивает мяч. Пользователь
@@ -206,6 +210,14 @@
   (let ((inhibit-read-only t))
     (setq-local truncate-lines t)
     (setq *cdg-game-zone* (cdg-make-zone-by-window (selected-window)))
+    (setq *cdg-boxes*
+          (remove-if-not (lambda (x)
+                           (cdg-contain-rect-test (cdg-zone-rect *cdg-game-zone*)
+                                                  (cdg-box-rect x)))
+                         (cdg-make-boxes-by-buf-text
+                          (current-buffer)
+                          (cdg-zone-box-start *cdg-game-zone* :descart)
+                          +cdg-game-unit+)))
     (setq *cdg-draw-buffer*
           (cdg-make-char-buffer (cdg-zone-rows *cdg-game-zone*)
                                 (cdg-zone-cols *cdg-game-zone*)
@@ -221,12 +233,12 @@
                                        *cdg-platform*
                                        *cdg-game-zone*))
 
-    (cdg-debug (format "Создано игровое поле %d x %d"
-                       (cdg-char-buf-row-count *cdg-game-board*)
-                       (cdg-char-buf-col-count *cdg-game-board*)))
+    (cdg-debug (format "Создана игровaя зона %d x %d"
+                       (cdg-zone-rows *cdg-game-zone*)
+                       (cdg-zone-cols *cdg-game-zone*)))
     (cdg-debug (format "Создан буфер отрисовки %d x %d"
-                       (cdg-char-buf-row-count *cdg-draw-buffer*)
-                       (cdg-char-buf-col-count *cdg-draw-buffer*)))
+                       (cdg-char-buffer-rows *cdg-draw-buffer*)
+                       (cdg-char-buffer-cols *cdg-draw-buffer*)))
     (cdg-debug (format "Начальное положение платформы: %d"
                        (cdg-platform-pos *cdg-platform*)))
     (cdg-debug (format "Начальное положение мяча: %s"
@@ -243,10 +255,13 @@
    рассматривается как игровой бокс. Размер бокса указывается в игровых единицах"
   (let ((begin-line nil)
         (box-size-dec (* box-size +cdg-game-unit+))
-        (boxes '()))
+        (boxes '())
+        (y-pos start-y)) ; Текущая позиция бокса по вертикали
     (with-buffer buffer
-      (beginning-of-buffer)
-      (while (not (eobp))
+      (move-to-window-line 0)
+      (setq *inx* 0)
+      ; Проход по всем строкам окна
+      (while (and (not (eobp)) (< *inx* (window-body-height)))
         (beginning-of-line)
         (setq begin-line (point))
         (end-of-line)
@@ -254,12 +269,13 @@
           (dotimes (i (length text-line))
             (when (not (eq (aref text-line i) +cdg-space-sym+))
               (setq boxes
-                    (cons (cdg-make-box (vector (* i box-size-dec) start-y)
+                    (cons (cdg-make-box (vector (* i box-size-dec) y-pos)
                                         box-size
                                         (aref text-line i))
                           boxes)))))
-        (setq start-y (- start-y box-size-dec))
-        (forward-line 1)))
+        (setq y-pos (- y-pos box-size-dec))
+        (forward-line 1)
+        (setq *inx* (1+ *inx*))))
       boxes))
 
 ;; Функции отрисовки игровых объектов
