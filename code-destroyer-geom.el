@@ -111,6 +111,13 @@
          (<= y (cdg-rect-max-y rect))
          (>= y (cdg-rect-min-y rect)))))
 
+(defun cdg-contain-rect-test (rect1 rect2)
+  "Содержит ли в себе целиком rect1 прямоугольник rect2"
+  (and (cdg-rect-point-test rect1
+                            (cdg-rect-left-top rect2))
+       (cdg-rect-point-test rect1
+                            (cdg-rect-right-bottom rect2))))
+
 (defun cdg-hline-ray-intersection (line-y ray-start ray-direction)
   "Вычисляет точку пересечения горизонтальной прямой и луча. Вектор
    ray-direction должен быть нормированным"
