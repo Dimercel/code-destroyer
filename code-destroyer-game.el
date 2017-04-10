@@ -1,10 +1,10 @@
 ;;; Игровые объекты
 
 
-(defun cdg-make-ball (coord direction)
+(defun cdg-make-ball (coord direction char)
   "Игровой мяч уничтожающий блоки и
    отражаемый платформой"
-  (vector coord (cdg-normalize-vec direction)))
+  (vector coord (cdg-normalize-vec direction) char))
 
 (defun cdg-ball-pos (ball)
   "Собственно координаты центра мяча
@@ -15,6 +15,10 @@
   "Нормализованный вектор-направление
    движения мяча"
   (aref ball 1))
+
+(defun cdg-ball-char (ball)
+  "Каким символом в буфере отображается мяч?"
+  (aref ball 2))
 
 (defun cdg-ball-move-to (ball coord)
   "Перемещает мяч в точку coord"
@@ -59,8 +63,8 @@
 
 ;; Описывает игровую платформу. Она отбивает мяч. В начале игры мяч находится на
 ;; платформе
-(defun cdg-make-platform (center-pos size speed symbol)
-  (vector center-pos size speed symbol))
+(defun cdg-make-platform (center-pos size speed char)
+  (vector center-pos size speed char))
 
 (defun cdg-platform-pos (platform)
   (aref platform 0))
@@ -71,7 +75,7 @@
 (defun cdg-platform-speed (platform)
   (aref platform 2))
 
-(defun cdg-platform-symbol (platform)
+(defun cdg-platform-char (platform)
   (aref platform 3))
 
 (defun cdg-platform-move (platform step)
@@ -92,7 +96,8 @@
   (cdg-make-ball (cdg-make-point (* (1+ (cdg-zone-platform-start zone :row))
                                     +cdg-game-unit+)
                                  (cdg-platform-pos platform))
-                 (cdg-ball-direct ball)))
+                 (cdg-ball-direct ball)
+                 (cdg-ball-char ball)))
 
 ;; Описывает игровую зону. Представляет собой прямоугольную область в которой
 ;; происходит игра. Мяч не может покинуть пределов игровой зоны, как и любой

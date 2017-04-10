@@ -229,7 +229,7 @@
            1.0
            ?-))
     (setq *cdg-ball*
-          (cdg-return-ball-to-platform (cdg-make-ball (cdg-make-point 0 0) [1 1])
+          (cdg-return-ball-to-platform (cdg-make-ball (cdg-make-point 0 0) [1 1] ?o)
                                        *cdg-platform*
                                        *cdg-game-zone*))
 
@@ -291,7 +291,7 @@
       (cdg-set-char-safe char-buffer
                          platform-row
                          (+ start-pos i)
-                         (cdg-platform-symbol platform)))))
+                         (cdg-platform-char platform)))))
 
 (defun cdg-draw-ball (ball char-buffer)
   "Отрисова игрового мяча. Представляется одним
