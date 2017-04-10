@@ -280,16 +280,16 @@
 
 ;; Функции отрисовки игровых объектов
 
-(defun cdg-draw-platform (platform char-buffer)
+(defun cdg-draw-platform (platform char-buffer zone)
   "Отрисовка игровой платформы, находящейся на
    самой нижней строке."
-  (let* ((half-size (/ (cdg-platform-size platform) 2))
-         (last-row  (1- (cdg-char-buf-row-count char-buffer)))
+  (let* ((half-size (/ (cdg-platform-size platform) 2.0))
+         (platform-row  (cdg-zone-platform-start zone :row))
          (start-pos (truncate (- (cdg-platform-pos platform)
                                  half-size))))
     (dotimes (i (ceiling (cdg-platform-size platform)))
       (cdg-set-char-safe char-buffer
-                         last-row
+                         platform-row
                          (+ start-pos i)
                          (cdg-platform-symbol platform)))))
 
