@@ -289,18 +289,21 @@
                                  half-size))))
     (dotimes (i (ceiling (cdg-platform-size platform)))
       (cdg-set-char-safe char-buffer
-                         platform-row
+                         (- (cdg-char-buffer-rows char-buffer)
+                            (1+ platform-row))
                          (+ start-pos i)
                          (cdg-platform-char platform)))))
 
-(defun cdg-draw-ball (ball char-buffer)
+(defun cdg-draw-ball (ball char-buffer zone)
   "Отрисова игрового мяча. Представляется одним
    единственным символом в указанной позиции"
-  (let ((ball-pos (cdg-ball-pos ball)))
+  (let ((ball-pos (cdg-zone-point-coord zone
+                                        (cdg-ball-pos ball))))
     (cdg-set-char-safe char-buffer
-                       (truncate (elt ball-pos 0))
-                       (truncate (elt ball-pos 1))
-                       ?o)))
+                       (cdg-point-x ball-pos)
+                       (- (cdg-char-buffer-rows char-buffer)
+                          (1+ (cdg-point-y ball-pos)))
+                       (cdg-ball-char ball))))
 
 (defun cdg-draw-game-board (board char-buffer start-row)
   (dotimes (r (cdg-char-buf-row-count board))

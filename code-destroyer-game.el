@@ -175,7 +175,8 @@
       (* result-in-rows +cdg-game-unit+))))
 
 (defun cdg-zone-point-coord (zone point)
-  "Возвращает координаты квадрата, в котором содержится точка."
+  "Возвращает координаты квадрата, в котором содержится точка.
+   Координаты указаны в количестве строк и столбцов."
   (if (cdg-rect-point-test (cdg-zone-rect zone) point)
       (cdg-make-point (truncate (/ (cdg-point-x point) +cdg-game-unit+))
                       (truncate (/ (cdg-point-y point) +cdg-game-unit+)))
