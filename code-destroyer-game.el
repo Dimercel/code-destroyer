@@ -174,6 +174,12 @@
         result-in-rows
       (* result-in-rows +cdg-game-unit+))))
 
+(defun cdg-zone-box-rect (zone)
+  (cdg-make-rect
+   (cdg-make-point 0 (cdg-zone-box-start zone :descart))
+   (cdg-make-point (cdg-rect-width (cdg-zone-rect zone))
+                   (cdg-zone-space-start zone :descart))))
+
 (defun cdg-zone-point-coord (zone point)
   "Возвращает координаты квадрата, в котором содержится точка.
    Координаты указаны в количестве строк и столбцов."

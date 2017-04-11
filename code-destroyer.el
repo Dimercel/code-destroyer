@@ -212,12 +212,12 @@
     (setq *cdg-game-zone* (cdg-make-zone-by-window (selected-window)))
     (setq *cdg-boxes*
           (remove-if-not (lambda (x)
-                           (cdg-contain-rect-test (cdg-zone-rect *cdg-game-zone*)
+                           (cdg-contain-rect-test (cdg-zone-box-rect *cdg-game-zone*)
                                                   (cdg-box-rect x)))
                          (cdg-make-boxes-by-buf-text
                           (current-buffer)
                           (cdg-zone-box-start *cdg-game-zone* :descart)
-                          +cdg-game-unit+)))
+                          1)))
     (setq *cdg-draw-buffer*
           (cdg-make-char-buffer (cdg-zone-rows *cdg-game-zone*)
                                 (cdg-zone-cols *cdg-game-zone*)
@@ -269,7 +269,7 @@
           (dotimes (i (length text-line))
             (when (not (eq (aref text-line i) +cdg-space-sym+))
               (setq boxes
-                    (cons (cdg-make-box (vector (* i box-size-dec) y-pos)
+                    (cons (cdg-make-box (cdg-make-point (* i box-size-dec) y-pos)
                                         box-size
                                         (aref text-line i))
                           boxes)))))
@@ -306,6 +306,16 @@
                           (1+ (cdg-point-y ball-pos)))
                        (cdg-point-x ball-pos)
                        (cdg-ball-char ball))))
+
+(defun cdg-draw-boxes (boxes char-buffer zone)
+  (dolist (box boxes)
+    (let ((coord (cdg-zone-point-coord zone
+                                       (cdg-box-pos box))))
+      (cdg-set-char-safe char-buffer
+                         (- (cdg-char-buffer-rows char-buffer)
+                            (1+ (cdg-point-y coord)))
+                         (cdg-point-x coord)
+                         (cdg-box-char box)))))
 
 (defun cdg-draw-game-board (board char-buffer start-row)
   (dotimes (r (cdg-char-buf-row-count board))
