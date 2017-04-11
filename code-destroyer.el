@@ -225,7 +225,7 @@
     (setq *cdg-platform*
           (cdg-make-platform
            (/ (cdg-rect-width (cdg-zone-rect *cdg-game-zone*)) 2.0)
-           5.0
+           (* 5.0 +cdg-game-unit+)
            1.0
            ?-))
     (setq *cdg-ball*
@@ -291,7 +291,9 @@
       (cdg-set-char-safe char-buffer
                          (- (cdg-char-buffer-rows char-buffer)
                             (1+ platform-row))
-                         (+ start-pos i)
+                         (cdg-point-y
+                          (cdg-zone-point-coord zone
+                                                (cdg-make-point 0 (+ start-pos i))))
                          (cdg-platform-char platform)))))
 
 (defun cdg-draw-ball (ball char-buffer zone)
@@ -300,9 +302,9 @@
   (let ((ball-pos (cdg-zone-point-coord zone
                                         (cdg-ball-pos ball))))
     (cdg-set-char-safe char-buffer
-                       (cdg-point-x ball-pos)
                        (- (cdg-char-buffer-rows char-buffer)
                           (1+ (cdg-point-y ball-pos)))
+                       (cdg-point-x ball-pos)
                        (cdg-ball-char ball))))
 
 (defun cdg-draw-game-board (board char-buffer start-row)
