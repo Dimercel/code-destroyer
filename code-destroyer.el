@@ -331,14 +331,13 @@
     (switch-to-buffer *cdg-game-buffer*)
     (erase-buffer)
     (setq *cdg-draw-buffer*
-          (cdg-erase-char-buffer *cdg-draw-buffer*
-                                 +cdg-space-sym+))
+          (cdg-make-char-buffer (cdg-zone-rows *cdg-game-zone*)
+                                (cdg-zone-cols *cdg-game-zone*)
+                                +cdg-space-sym+))
 
-    (cdg-draw-game-board *cdg-game-board*
-                         *cdg-draw-buffer*
-                         1)
-    (cdg-draw-platform *cdg-platform* *cdg-draw-buffer*)
-    (cdg-draw-ball *cdg-ball* *cdg-draw-buffer*)
+    (cdg-draw-boxes *cdg-boxes* *cdg-draw-buffer* *cdg-game-zone*)
+    (cdg-draw-platform *cdg-platform* *cdg-draw-buffer* *cdg-game-zone*)
+    (cdg-draw-ball *cdg-ball* *cdg-draw-buffer* *cdg-game-zone*)
 
     (cdg-output-char-buffer *cdg-draw-buffer*)
     (beginning-of-buffer)))
@@ -347,7 +346,7 @@
   "Главный цикл игры"
   (when (eq (current-buffer) *cdg-game-buffer*)
     (unless *cdg-ball-on-platform*
-      (setq *cdg-ball* (cdg-ball-move *cdg-ball* 0.7)))
+      (cdg-ball-move *cdg-ball* 0.7))
     (cdg-draw-game)))
 
 
