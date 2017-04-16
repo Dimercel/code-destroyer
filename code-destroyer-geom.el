@@ -45,6 +45,18 @@
                                   (cdg-point-dist-square point (first other))))
           0)))
 
+(defun cdg-left-vline (line-x point)
+  (< (cdg-point-x point) line-x))
+
+(defun cdg-right-vline (line-x point)
+  (> (cdg-point-x point) line-x))
+
+(defun cdg-above-hline (line-y point)
+  (> (cdg-point-y point) line-y))
+
+(defun cdg-under-hline (line-y point)
+  (< (cdg-point-y point) line-y))
+
 ;; Векторы и работа с ними
 
 (defun cdg-normalize-vec (vec)
@@ -118,11 +130,32 @@
        (cdg-rect-point-test rect1
                             (cdg-rect-right-bottom rect2))))
 
+(defun cdg-vline-ray-inter-existp (line-x ray-start ray-direction)
+  "Существует ли точка пересичения вертикальной прямой и
+   другой прямой, заданной вектором"
+  (if (= line-x (cdg-point-x ray-start))
+      t
+    (or
+     (and (cdg-left-vline line-x ray-start)
+          (> (aref ray-direction 0) 0))
+     (and (cdg-right-vline line-x ray-start)
+          (< (aref ray-direction 0) 0)))))
+
+(defun cdg-hline-ray-inter-existp (line-y ray-start ray-direction)
+  "Существует ли точка пересичения горизонтальной прямой и
+   другой прямой, заданной вектором"
+  (if (= line-y (cdg-point-y ray-start))
+      t
+    (or
+     (and (cdg-above-hline line-y ray-start)
+          (< (aref ray-direction 1) 0))
+     (and (cdg-under-hline line-y ray-start)
+          (> (aref ray-direction 1) 0)))))
+
 (defun cdg-hline-ray-intersection (line-y ray-start ray-direction)
   "Вычисляет точку пересечения горизонтальной прямой и луча. Вектор
    ray-direction должен быть нормированным"
-  (if (and (cdg-same-signp line-y (aref ray-direction 1))
-           (> (abs line-y) (abs (cdg-point-y ray-start))))
+  (if (cdg-hline-ray-inter-existp line-y ray-start ray-direction)
       (let ((line-dist (abs (- line-y (cdg-point-y ray-start)))))
         (vector (+ (cdg-point-x ray-start)
                    (* (abs (/ line-dist (aref ray-direction 1)))
@@ -133,11 +166,31 @@
 (defun cdg-vline-ray-intersection (line-x ray-start ray-direction)
   "Вычисляет точку пересечения вертикальной прямой и луча. Вектор
    ray-direction должен быть нормированным"
-  (if (and (cdg-same-signp line-x (aref ray-direction 0))
-           (> (abs line-x) (abs (cdg-point-x ray-start))))
+  (if (cdg-vline-ray-inter-existp line-x ray-start ray-direction)
       (let ((line-dist (abs (- line-x (cdg-point-x ray-start)))))
         (vector line-x
                 (+ (cdg-point-y ray-start)
                    (* (abs (/ line-dist (aref ray-direction 0)))
                       (aref ray-direction 1)))))
     nil))
+
+(defun cdg-rect-ray-intersection (rect ray-start ray-direction)
+  "Находит точку пересечения прямоугольника параллельного Ox и луча, если
+   она существует. Вектор должен быть нормированным."
+  (cdg-closest-point
+   ray-start
+   (remove-if-not
+    (lambda (x) (cdg-rect-point-test rect x))
+    (remove-if 'null
+               (list (cdg-hline-ray-intersection (cdg-rect-min-y rect)
+                                                 ray-start
+                                                 ray-direction)
+                     (cdg-hline-ray-intersection (cdg-rect-max-y rect)
+                                                 ray-start
+                                                 ray-direction)
+                     (cdg-vline-ray-intersection (cdg-rect-min-x rect)
+                                                 ray-start
+                                                 ray-direction)
+                     (cdg-vline-ray-intersection (cdg-rect-max-x rect)
+                                                 ray-start
+                                                 ray-direction))))))
