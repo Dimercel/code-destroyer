@@ -210,18 +210,19 @@
   (let ((inhibit-read-only t))
     (setq-local truncate-lines t)
     (setq *cdg-game-zone* (cdg-make-zone-by-window (selected-window)))
-    (setq *cdg-boxes*
-          (remove-if-not (lambda (x)
-                           (cdg-contain-rect-test (cdg-zone-box-rect *cdg-game-zone*)
-                                                  (cdg-box-rect x)))
-                         (cdg-make-boxes-by-buf-text
-                          (current-buffer)
-                          (cdg-zone-box-start *cdg-game-zone* :descart)
-                          1)))
     (setq *cdg-draw-buffer*
           (cdg-make-char-buffer (cdg-zone-rows *cdg-game-zone*)
                                 (cdg-zone-cols *cdg-game-zone*)
                                 +cdg-space-sym+))
+    (with-buffer *cdg-code-buffer*
+      (setq *cdg-boxes*
+            (remove-if-not (lambda (x)
+                            (cdg-contain-rect-test (cdg-zone-box-rect *cdg-game-zone*)
+                                                    (cdg-box-rect x)))
+                          (cdg-make-boxes-by-buf-text
+                            (current-buffer)
+                            (cdg-zone-box-start *cdg-game-zone* :descart)
+                            1))))
     (setq *cdg-platform*
           (cdg-make-platform
            (/ (cdg-rect-width (cdg-zone-rect *cdg-game-zone*)) 2.0)
