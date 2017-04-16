@@ -178,27 +178,23 @@
 (defun cdg-left ()
   "Двигает платформу влево"
   (interactive)
-  (setq *cdg-platform*
-        (cdg-platform-move *cdg-platform*
-                           (- (cdg-platform-speed *cdg-platform*))))
+  (cdg-platform-move *cdg-platform*
+                     (- (cdg-platform-speed *cdg-platform*)))
   (when *cdg-ball-on-platform*
     (setq *cdg-ball*
           (cdg-return-ball-to-platform *cdg-ball*
                                  *cdg-platform*
-                                 *cdg-draw-buffer*)))
-  (cdg-draw-game))
+                                 *cdg-draw-buffer*))))
 
 (defun cdg-right ()
   "Двигает платформу вправо"
   (interactive)
-  (setq *cdg-platform*
-        (cdg-platform-move *cdg-platform*
-                           (+ (cdg-platform-speed *cdg-platform*))))
+  (cdg-platform-move *cdg-platform*
+                           (cdg-platform-speed *cdg-platform*))
   (when *cdg-ball-on-platform*
     (cdg-return-ball-to-platform *cdg-ball*
                                  *cdg-platform*
-                                 *cdg-draw-buffer*))
-  (cdg-draw-game))
+                                 *cdg-draw-buffer*)))
 
 (defun cdg-action ()
   "Отпускает мяч с платформы"
