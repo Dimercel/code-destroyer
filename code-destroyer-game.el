@@ -187,3 +187,28 @@
       (cdg-make-point (truncate (/ (cdg-point-x point) +cdg-game-unit+))
                       (truncate (/ (cdg-point-y point) +cdg-game-unit+)))
     nil))
+
+(defun cdg-zone-point-rect (zone point)
+  "По указанной точке, вернет прямоугольник которому,
+   эта точка принадлежит. С длиной стороны +cdg-game-unit+"
+  (let ((box-pos (cdg-zone-point-coord zone point)))
+    (if (null box-pos)
+        nil
+      (cdg-make-rect
+       (cdg-make-point (* (cdg-point-x box-pos) +cdg-game-unit+)
+                       (* (1+ (cdg-point-y box-pos)) +cdg-game-unit+))
+       (cdg-make-point (* (1+ (cdg-point-x box-pos)) +cdg-game-unit+)
+                       (* (cdg-point-y box-pos) +cdg-game-unit+))
+       ))))
+
+(defun cdg-zone-neighbors-rect (zone point)
+  "Вернет список прямоугольников, соседствующих с тем,
+  что принадлежит точке point"
+  (let ((x (cdg-point-x point))
+        (y (cdg-point-y point)))
+    (delete-if
+     #'null
+     (list (cdg-zone-point-rect zone (cdg-make-point x (+ y +cdg-game-unit+)))
+           (cdg-zone-point-rect zone (cdg-make-point (+ x +cdg-game-unit+) y))
+           (cdg-zone-point-rect zone (cdg-make-point x (- y +cdg-game-unit+)))
+           (cdg-zone-point-rect zone (cdg-make-point (- x +cdg-game-unit+) y))))))
