@@ -86,6 +86,15 @@
   "Строит прямоугольник по двум переданным точкам"
   (list left-top right-bottom))
 
+(defun cdg-make-rect-by-2-points (point1 point2)
+  "Строит прямоугольник по двум, произвольным точкам"
+  (let ((min-x (min (cdg-point-x point1) (cdg-point-x point2)))
+        (max-x (max (cdg-point-x point1) (cdg-point-x point2)))
+        (min-y (min (cdg-point-y point1) (cdg-point-y point2)))
+        (max-y (max (cdg-point-y point1) (cdg-point-y point2))))
+    (cdg-make-rect (cdg-make-point min-x max-y)
+                   (cdg-make-point max-x min-y))))
+
 (defun cdg-rect-left-top (rect)
   (first rect))
 

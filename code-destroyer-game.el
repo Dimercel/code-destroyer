@@ -212,3 +212,27 @@
            (cdg-zone-point-rect zone (cdg-make-point (+ x +cdg-game-unit+) y))
            (cdg-zone-point-rect zone (cdg-make-point x (- y +cdg-game-unit+)))
            (cdg-zone-point-rect zone (cdg-make-point (- x +cdg-game-unit+) y))))))
+
+(defun cdg-squares-on-line (zone point1 point2)
+  "Возвращает список квадратов, которые пересекает отрезок, заданный двумя
+  точками. Так как внутри игровой зоны расчеты ведутся в игровых единицах, то
+  размеры квадратов равны 1 еденице"
+  (let* ((main-rect (cdg-make-rect-by-2-points point1 point2))
+         (lt (cdg-rect-left-top main-rect))
+         (rb (cdg-rect-right-bottom main-rect))
+         (lt-square (cdg-zone-point-coord zone lt))
+         (rb-square (cdg-zone-point-coord zone rb))
+         (hdist (- (cdg-point-x rb-square) (cdg-point-x lt-square)))
+         (vdist (- (cdg-point-y lt-square) (cdg-point-y rb-square)))
+         (result '()))
+    (dotimes (r (1+ hdist))
+      (dotimes (c (1+ vdist))
+        (let* ((left (* (+ (cdg-point-x lt-square) c) +cdg-game-unit+))
+               (top  (* (1+ (- (cdg-point-y lt-square) r)) +cdg-game-unit+))
+               (right (+ left +cdg-game-unit+))
+               (bottom (- top +cdg-game-unit+)))
+          (setq result
+                (cons (cdg-make-rect (cdg-make-point left top)
+                                     (cdg-make-point right bottom))
+                      result)))))
+    result))
