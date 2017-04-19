@@ -236,3 +236,28 @@
                                      (cdg-make-point right bottom))
                       result)))))
     result))
+
+
+;;; Проверка на столкновения
+
+
+(defun cdg-ball-boxes-test (zone boxes ball dist)
+  "Вернет ближайший игровой бокс с которым
+  сталкнется мяч, пройдя расстояние DIST"
+  (let* ((ball-x (cdg-point-x (cdg-ball-pos ball)))
+         (ball-y (cdg-point-y (cdg-ball-pos ball)))
+         (dir-x  (aref (cdg-ball-direct ball) 0))
+         (dir-y  (aref (cdg-ball-direct ball) 1))
+         (test-rects (cdg-squares-on-line
+                     zone
+                     (cdg-ball-pos ball)
+                     (cdg-make-point (+ ball-x (* dir-x dist))
+                                     (+ ball-y (* dir-y dist)))))
+         (result '()))
+    (dolist (box boxes)
+      (let* ((lt (cdg-box-pos box))
+             (left-top-eqp (lambda (x)
+                             (equal lt (cdg-rect-left-top x)))))
+        (when (some left-top-eqp test-rects)
+          (setq result (cons box result)))))
+    result))
