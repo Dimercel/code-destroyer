@@ -61,6 +61,17 @@
 (defun cdg-box-char (box)
   (aref box 1))
 
+(defun cdg-find-boxes-by-rect (boxes rects)
+  "Отыскивает в списке игровых боксов такие,
+   что их огранич. прямоугольник является
+   элементом RECTS"
+  (remove-if-not
+   (lambda (x)
+     (some (lambda (y)
+             (equal (cdg-box-rect x) y))
+           rects))
+   boxes))
+
 ;; Описывает игровую платформу. Она отбивает мяч. В начале игры мяч находится на
 ;; платформе
 (defun cdg-make-platform (center-pos size speed char)
@@ -261,6 +272,11 @@
                              (equal lt (cdg-rect-left-top x)))))
         (when (some left-top-eqp test-rects)
           (setq result (cons box result)))))
+    (delete-if-not (lambda (x)
+                     (cdg-rect-ray-intersection (cdg-box-rect x)
+                                                (cdg-ball-pos ball)
+                                                (cdg-ball-direct ball)))
+                   result)
     ;; выбираем ближайший к мячу игровой бокс
     (let ((near (cdg-closest-point (cdg-ball-pos ball)
                                    (map 'list #'cdg-box-pos result))))
