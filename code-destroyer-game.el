@@ -216,7 +216,7 @@
 (defun cdg-squares-on-line (zone point1 point2)
   "Возвращает список квадратов, которые пересекает отрезок, заданный двумя
   точками. Так как внутри игровой зоны расчеты ведутся в игровых единицах, то
-  размеры квадратов равны 1 еденице"
+  размеры квадратов равны 1 единице"
   (let* ((main-rect (cdg-make-rect-by-2-points point1 point2))
          (lt (cdg-rect-left-top main-rect))
          (rb (cdg-rect-right-bottom main-rect))
@@ -243,21 +243,26 @@
 
 (defun cdg-ball-boxes-test (zone boxes ball dist)
   "Вернет ближайший игровой бокс с которым
-  сталкнется мяч, пройдя расстояние DIST"
+  столкнется мяч, пройдя расстояние DIST"
   (let* ((ball-x (cdg-point-x (cdg-ball-pos ball)))
          (ball-y (cdg-point-y (cdg-ball-pos ball)))
          (dir-x  (aref (cdg-ball-direct ball) 0))
          (dir-y  (aref (cdg-ball-direct ball) 1))
          (test-rects (cdg-squares-on-line
-                     zone
-                     (cdg-ball-pos ball)
-                     (cdg-make-point (+ ball-x (* dir-x dist))
-                                     (+ ball-y (* dir-y dist)))))
+                      zone
+                      (cdg-ball-pos ball)
+                      (cdg-make-point (+ ball-x (* dir-x dist))
+                                      (+ ball-y (* dir-y dist)))))
          (result '()))
+    ;; ищем все боксы, пересекающиеся с путем мяча
     (dolist (box boxes)
       (let* ((lt (cdg-box-pos box))
              (left-top-eqp (lambda (x)
                              (equal lt (cdg-rect-left-top x)))))
         (when (some left-top-eqp test-rects)
           (setq result (cons box result)))))
-    result))
+    ;; выбираем ближайший к мячу игровой бокс
+    (let ((near (cdg-closest-point (cdg-ball-pos ball)
+                                   (map 'list #'cdg-box-pos result))))
+      (first (remove-if-not (lambda (x) (equal near (cdg-box-pos x)))
+                            result)))))
