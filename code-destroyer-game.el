@@ -266,12 +266,8 @@
                                       (+ ball-y (* dir-y dist)))))
          (result '()))
     ;; ищем все боксы, пересекающиеся с путем мяча
-    (dolist (box boxes)
-      (let* ((lt (cdg-box-pos box))
-             (left-top-eqp (lambda (x)
-                             (equal lt (cdg-rect-left-top x)))))
-        (when (some left-top-eqp test-rects)
-          (setq result (cons box result)))))
+    (setq result (cdg-find-boxes-by-rect boxes test-rects))
+    ;; удаляем боксы без пересечения
     (delete-if-not (lambda (x)
                      (cdg-rect-ray-intersection (cdg-box-rect x)
                                                 (cdg-ball-pos ball)
