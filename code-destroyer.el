@@ -83,7 +83,10 @@
   одинаковых размеров, данная константа представляет размер стороны такого
   элементарного квадрата.")
 
-(defconst *cdg-debug* nil
+(defconst +cdg-ball-step+ (/ +cdg-game-unit+ 2.0)
+  "Длина пути, который проходит мяч за один шаг")
+
+(defconst *cdg-debug* t
   "Переменная отвечает за режим вывода отладочной ин-ии")
 
 
@@ -226,7 +229,7 @@
            1.0
            ?-))
     (setq *cdg-ball*
-          (cdg-return-ball-to-platform (cdg-make-ball (cdg-make-point 0 0) [1 1] ?o)
+          (cdg-return-ball-to-platform (cdg-make-ball (cdg-make-point 0 0) [-0.8 1] ?o)
                                        *cdg-platform*
                                        *cdg-game-zone*))
 
@@ -274,6 +277,31 @@
         (forward-line 1)
         (setq *inx* (1+ *inx*))))
       boxes))
+
+
+
+;;; Функции проверки коллизий игровых объектов
+
+
+
+(defun cdg-ball-boxes-collision ()
+  "Определяет поведение игры при соприкосновении
+  мяча с игровым боксом"
+  (let ((crash-box (cdg-ball-boxes-test *cdg-game-zone*
+                                        *cdg-boxes*
+                                        *cdg-ball*
+                                        +cdg-ball-step+)))
+    (when crash-box
+      (let ((cross-point (cdg-rect-ray-intersection
+                          (cdg-box-rect crash-box)
+                          (cdg-ball-pos *cdg-ball*)
+                          (cdg-ball-direct *cdg-ball*))))
+        (delete-if (lambda (x) (equal (cdg-box-pos crash-box)
+                                      (cdg-box-pos x)))
+                   *cdg-boxes*)
+        (cdg-debug cross-point)
+        (cdg-ball-move-to *cdg-ball* cross-point)))))
+
 
 ;; Функции отрисовки игровых объектов
 
@@ -341,10 +369,11 @@
 
 (defun cdg-main-loop ()
   "Главный цикл игры"
-  (when (eq (current-buffer) *cdg-game-buffer*)
-    (unless *cdg-ball-on-platform*
-      (cdg-ball-move *cdg-ball* 0.7))
-    (cdg-draw-game)))
+    (when (eq (current-buffer) *cdg-game-buffer*)
+      (unless *cdg-ball-on-platform*
+        (cdg-ball-boxes-collision)
+        (cdg-ball-move *cdg-ball* +cdg-ball-step+))
+      (cdg-draw-game)))
 
 
 (provide 'code-destroyer-game)
