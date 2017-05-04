@@ -342,14 +342,6 @@
                          (cdg-point-x coord)
                          (cdg-box-char box)))))
 
-(defun cdg-draw-game-board (board char-buffer start-row)
-  (dotimes (r (cdg-char-buf-row-count board))
-    (dotimes (c (cdg-char-buf-col-count board))
-      (cdg-set-char-safe char-buffer
-                         (+ r start-row)
-                         c
-                         (cdg-get-char board r c )))))
-
 (defun cdg-draw-game ()
   "Собственно отрисовка всех элементов игры"
   (let ((inhibit-read-only t))
