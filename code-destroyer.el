@@ -316,9 +316,10 @@
       (cdg-set-char-safe char-buffer
                          (- (cdg-char-buffer-rows char-buffer)
                             (1+ platform-row))
-                         (cdg-point-y
-                          (cdg-zone-point-coord zone
-                                                (cdg-make-point 0 (+ start-pos i))))
+                         (truncate
+                          (cdg-point-y
+                           (cdg-zone-point-coord zone
+                                                 (cdg-make-point 0 (+ start-pos i)))))
                          (cdg-platform-char platform)))))
 
 (defun cdg-draw-ball (ball char-buffer zone)
@@ -328,8 +329,8 @@
                                         (cdg-ball-pos ball))))
     (cdg-set-char-safe char-buffer
                        (- (cdg-char-buffer-rows char-buffer)
-                          (1+ (cdg-point-y ball-pos)))
-                       (cdg-point-x ball-pos)
+                          (truncate (1+ (cdg-point-y ball-pos))))
+                       (truncate (cdg-point-x ball-pos))
                        (cdg-ball-char ball))))
 
 (defun cdg-draw-boxes (boxes char-buffer zone)
@@ -338,8 +339,8 @@
                                        (cdg-box-pos box))))
       (cdg-set-char-safe char-buffer
                          (- (cdg-char-buffer-rows char-buffer)
-                            (1+ (cdg-point-y coord)))
-                         (cdg-point-x coord)
+                            (truncate (1+ (cdg-point-y coord))))
+                         (truncate (cdg-point-x coord))
                          (cdg-box-char box)))))
 
 (defun cdg-draw-game ()
