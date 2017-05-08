@@ -3,7 +3,7 @@
 
 (defun cdg-make-point (x y)
   "Создает точку в Декартовой системе координат"
-  (vector x y))
+  (vector (float x) (float y)))
 
 (defun cdg-make-point-by-vec (vec)
   "Создает точку по 2-х мерному вектору"
