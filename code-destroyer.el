@@ -144,7 +144,7 @@
    отсутсвия указанного индекса"
   (let ((size (cdg-char-buffer-size buffer))
         (char-inx (cdg-2d->1d row col (cdg-char-buffer-cols buffer))))
-    (if (and (< char-inx size) (> row 0) (> col 0))
+    (if (and (< char-inx size) (>= row 0) (>= col 0))
         (cdg-get-char buffer row col)
       bad-value)))
 
@@ -154,7 +154,7 @@
    случае не корректного индекса"
   (let ((size (cdg-char-buffer-size buffer))
         (char-inx (cdg-2d->1d row col (cdg-char-buffer-cols buffer))))
-    (if (and (< char-inx size) (> row 0) (> col 0))
+    (if (and (< char-inx size) (>= row 0) (>= col 0))
         (cdg-set-char buffer row col new-value)
       nil)))
 
