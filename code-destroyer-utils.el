@@ -32,3 +32,23 @@
        (setq ,result (progn ,@body))
        (switch-to-buffer ,old-buffer)
        ,result)))
+
+(defun cdg-max-len-str-in-win ()
+  "Отыскивает самую длинную строку текста в активном окне и
+  возвращает ее длину. Учитывается только текст умещающийся в
+  окне, остальная часть буфера не учитывается"
+  (let ((begin-pos nil)
+        (line-inx 0)
+        (result 0))
+    (move-to-window-line 0)
+    (while (and (not (eobp))
+                (< line-inx (window-body-height)))
+      (beginning-of-line)
+      (setq begin-pos (point))
+      (end-of-line)
+      (let ((line-text (buffer-substring-no-properties begin-pos (point))))
+        (when (> (length line-text) result)
+          (setq result (length line-text))))
+      (forward-line 1)
+      (setq line-inx (1+ line-inx)))
+    result))

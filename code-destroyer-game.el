@@ -123,11 +123,14 @@
   "В этом случае границы зоны вычисляются
    на основе переданного emacs-буфера"
   (with-selected-window window
-    (cdg-make-zone (window-body-height)
-                   (window-body-width))))
+    (if (< (cdg-max-len-str-in-win) (window-body-width))
+        (cdg-make-zone (window-body-height)
+                       (cdg-max-len-str-in-win))
+        (cdg-make-zone (window-body-height)
+                       (window-body-width)))))
 
 (defun cdg-zone-rect (zone)
-  "Возвращает ограничивающий прямоуглольник зоны"
+  "Возвращает ограничивающий прямоугольник зоны"
   zone)
 
 (defun cdg-zone-rows (zone)

@@ -208,7 +208,8 @@
   "Собственно инициализация игры."
   (let ((inhibit-read-only t))
     (setq-local truncate-lines t)
-    (setq *cdg-game-zone* (cdg-make-zone-by-window (selected-window)))
+    (with-buffer *cdg-code-buffer*
+                 (setq *cdg-game-zone* (cdg-make-zone-by-window (selected-window))))
     (setq *cdg-draw-buffer*
           (cdg-make-char-buffer (cdg-zone-rows *cdg-game-zone*)
                                 (cdg-zone-cols *cdg-game-zone*)
