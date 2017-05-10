@@ -87,7 +87,7 @@
   "Длина пути, который проходит мяч за один шаг")
 
 (defconst *cdg-debug* t
-  "Переменная отвечает за режим вывода отладочной ин-ии")
+  "Константа отвечает за режим вывода отладочной ин-ии")
 
 
 ;;; Код ниже описывает символьный буфер. Такой буфер состоит из одиночных
@@ -263,7 +263,8 @@
           (let ((cur-char (aref text-line char-inx)))
             (when (not (space-p cur-char))
               (setq boxes
-                    (cons (cdg-make-box (cdg-make-point (* char-inx box-size-dec) y-pos)
+                    (cons (cdg-make-box (cdg-make-point (* char-inx box-size-dec)
+                                                        y-pos)
                                         box-size
                                         cur-char)
                           boxes)))))
@@ -310,8 +311,9 @@
                             (1+ platform-row))
                          (truncate
                           (cdg-point-y
-                           (cdg-zone-point-coord zone
-                                                 (cdg-make-point 0 (+ start-pos i)))))
+                           (cdg-zone-point-coord
+                            zone
+                            (cdg-make-point 0 (+ start-pos i)))))
                          (cdg-platform-char platform)))))
 
 (defun cdg-draw-ball (ball char-buffer zone)
