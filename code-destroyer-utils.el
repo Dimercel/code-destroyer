@@ -52,7 +52,7 @@
          (setq ,line-sym (buffer-substring-no-properties ,begin-pos (point)))
          ,@body
          (forward-line 1)
-         (setq ,line-inx (1+ ,line-inx))))))
+         (incf ,line-inx)))))
 
 (defun cdg-max-len-str-in-win ()
   "Отыскивает самую длинную строку текста в активном окне и
