@@ -29,7 +29,7 @@
 
   (cdg-init)
   (switch-to-buffer *cdg-game-buffer*)
-  (setq *cdg-game-timer* (run-with-timer 0.5 0.5 'cdg-main-loop)))
+  (setq *cdg-game-timer* (run-with-timer 0 1.0 'cdg-main-loop)))
 
 
 ;;; Раздел объявления констант и переменных
