@@ -254,29 +254,20 @@
 (defun cdg-make-boxes-by-buf-text (buffer start-y box-size)
   "Строит игровые боксы на основе текста буфера. Каждый символ текста
    рассматривается как игровой бокс. Размер бокса указывается в игровых единицах"
-  (let ((begin-line nil)
+  (let ((y-pos start-y) ; Текущая позиция бокса по вертикали
         (box-size-dec (* box-size +cdg-game-unit+))
-        (boxes '())
-        (y-pos start-y)) ; Текущая позиция бокса по вертикали
+        (boxes '()))
     (with-buffer buffer
-      (move-to-window-line 0)
-      (setq *inx* 0)
-      ; Проход по всем строкам окна
-      (while (and (not (eobp)) (< *inx* (window-body-height)))
-        (beginning-of-line)
-        (setq begin-line (point))
-        (end-of-line)
-        (let ((text-line (buffer-substring-no-properties begin-line (point))))
-          (dotimes (i (length text-line))
-            (when (not (eq (aref text-line i) +cdg-space-sym+))
+      (with-win-text text-line
+        (dotimes (char-inx (length text-line))
+          (let ((cur-char (aref text-line char-inx)))
+            (when (not (space-p cur-char))
               (setq boxes
-                    (cons (cdg-make-box (cdg-make-point (* i box-size-dec) y-pos)
+                    (cons (cdg-make-box (cdg-make-point (* char-inx box-size-dec) y-pos)
                                         box-size
-                                        (aref text-line i))
+                                        cur-char)
                           boxes)))))
-        (setq y-pos (- y-pos box-size-dec))
-        (forward-line 1)
-        (setq *inx* (1+ *inx*))))
+        (setq y-pos (- y-pos box-size-dec))))
       boxes))
 
 

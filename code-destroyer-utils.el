@@ -1,6 +1,9 @@
 ;;; Вспомогательные функции, используемые повсеместно
 
 
+(defun space-p (char)
+  (eq char +cdg-space-sym+))
+
 (defun cdg-to-length (str new-length fill-char)
   "Приводит строку к указанной длине, добавляя
    символы-заполнители, либо удаляя не нужные
@@ -33,22 +36,30 @@
        (switch-to-buffer ,old-buffer)
        ,result)))
 
+(defmacro with-win-text (line-sym &rest body)
+  "Проходит по всему тексту, видимому в окне."
+  (let ((begin-pos (gensym))
+        (line-inx (gensym)))
+    `(let ((,line-sym "")
+           (,begin-pos nil)
+           (,line-inx 0))
+       (move-to-window-line 0)
+       (while (and (not (eobp))
+                   (< ,line-inx ,(window-body-height)))
+         (beginning-of-line)
+         (setq ,begin-pos (point))
+         (end-of-line)
+         (setq ,line-sym (buffer-substring-no-properties ,begin-pos (point)))
+         ,@body
+         (forward-line 1)
+         (setq ,line-inx (1+ ,line-inx))))))
+
 (defun cdg-max-len-str-in-win ()
   "Отыскивает самую длинную строку текста в активном окне и
   возвращает ее длину. Учитывается только текст умещающийся в
   окне, остальная часть буфера не учитывается"
-  (let ((begin-pos nil)
-        (line-inx 0)
-        (result 0))
-    (move-to-window-line 0)
-    (while (and (not (eobp))
-                (< line-inx (window-body-height)))
-      (beginning-of-line)
-      (setq begin-pos (point))
-      (end-of-line)
-      (let ((line-text (buffer-substring-no-properties begin-pos (point))))
-        (when (> (length line-text) result)
-          (setq result (length line-text))))
-      (forward-line 1)
-      (setq line-inx (1+ line-inx)))
+  (let ((result 0))
+    (with-win-text line-text
+      (when (> (length line-text) result)
+        (setq result (length line-text))))
     result))
