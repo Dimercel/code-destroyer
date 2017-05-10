@@ -86,7 +86,7 @@
 (defconst +cdg-ball-step+ (/ +cdg-game-unit+ 2.0)
   "Длина пути, который проходит мяч за один шаг")
 
-(defconst *cdg-debug* t
+(defconst *cdg-debug* nil
   "Константа отвечает за режим вывода отладочной ин-ии")
 
 
@@ -289,12 +289,12 @@
                           (cdg-box-rect crash-box)
                           (cdg-ball-pos *cdg-ball*)
                           (cdg-ball-direct *cdg-ball*))))
-        (delete-if (lambda (x) (equal (cdg-box-pos crash-box)
-                                      (cdg-box-pos x)))
-                   *cdg-boxes*)
-        (cdg-debug cross-point)
+        (setq *cdg-boxes*
+              (delete-if (lambda (x)
+                           (equal (cdg-box-pos crash-box)
+                                  (cdg-box-pos x)))
+                         *cdg-boxes*))
         (cdg-ball-move-to *cdg-ball* cross-point)))))
-
 
 ;; Функции отрисовки игровых объектов
 

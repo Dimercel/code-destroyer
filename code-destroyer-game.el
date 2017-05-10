@@ -271,13 +271,14 @@
     ;; ищем все боксы, пересекающиеся с путем мяча
     (setq result (cdg-find-boxes-by-rect boxes test-rects))
     ;; удаляем боксы без пересечения
-    (delete-if-not (lambda (x)
-                     (cdg-rect-ray-intersection (cdg-box-rect x)
-                                                (cdg-ball-pos ball)
-                                                (cdg-ball-direct ball)))
-                   result)
+    (setq result
+      (delete-if-not (lambda (x)
+                        (cdg-rect-ray-intersection (cdg-box-rect x)
+                                                  (cdg-ball-pos ball)
+                                                  (cdg-ball-direct ball)))
+                      result))
     ;; выбираем ближайший к мячу игровой бокс
     (let ((near (cdg-closest-point (cdg-ball-pos ball)
                                    (map 'list #'cdg-box-pos result))))
-      (first (remove-if-not (lambda (x) (equal near (cdg-box-pos x)))
+      (first (delete-if-not (lambda (x) (equal near (cdg-box-pos x)))
                             result)))))
