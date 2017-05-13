@@ -186,8 +186,8 @@
   (when *cdg-ball-on-platform*
     (setq *cdg-ball*
           (cdg-return-ball-to-platform *cdg-ball*
-                                 *cdg-platform*
-                                 *cdg-draw-buffer*))))
+                                       *cdg-platform*
+                                       *cdg-game-zone*))))
 
 (defun cdg-right ()
   "Двигает платформу вправо"
@@ -195,9 +195,10 @@
   (cdg-platform-move *cdg-platform*
                            (cdg-platform-speed *cdg-platform*))
   (when *cdg-ball-on-platform*
-    (cdg-return-ball-to-platform *cdg-ball*
-                                 *cdg-platform*
-                                 *cdg-draw-buffer*)))
+    (setq *cdg-ball*
+          (cdg-return-ball-to-platform *cdg-ball*
+                                       *cdg-platform*
+                                       *cdg-game-zone*))))
 
 (defun cdg-action ()
   "Отпускает мяч с платформы"
@@ -227,7 +228,7 @@
           (cdg-make-platform
            (/ (cdg-rect-width (cdg-zone-rect *cdg-game-zone*)) 2.0)
            (* 5.0 +cdg-game-unit+)
-           1.0
+           +cdg-game-unit+
            ?-))
     (setq *cdg-ball*
           (cdg-return-ball-to-platform (cdg-make-ball (cdg-make-point 0 0) [-0.8 1] ?o)
@@ -369,8 +370,8 @@
   "Главный цикл игры"
     (when (eq (current-buffer) *cdg-game-buffer*)
       (unless *cdg-ball-on-platform*
-        (cdg-ball-boxes-collision)
-        (cdg-ball-move *cdg-ball* +cdg-ball-step+))
+        (unless (cdg-ball-boxes-collision)
+          (cdg-ball-move *cdg-ball* +cdg-ball-step+)))
       (cdg-draw-game)))
 
 
