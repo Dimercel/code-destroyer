@@ -288,13 +288,24 @@
       (let ((cross-point (cdg-rect-ray-intersection
                           (cdg-box-rect crash-box)
                           (cdg-ball-pos *cdg-ball*)
-                          (cdg-ball-direct *cdg-ball*))))
+                          (cdg-ball-direct *cdg-ball*)))
+            (ball-dir (cdg-ball-direct *cdg-ball*)))
         (setq *cdg-boxes*
               (delete-if (lambda (x)
                            (equal (cdg-box-pos crash-box)
                                   (cdg-box-pos x)))
                          *cdg-boxes*))
-        (cdg-ball-move-to *cdg-ball* cross-point)))))
+        ;; Перемещаем игровой бокс на точку его пересечения
+        ;; с боксом
+        (cdg-ball-move-to *cdg-ball* cross-point)
+        ;; Произошло столкновение, вектор направления игрового
+        ;; мяча должен измениться
+        (if (or (= (cdg-point-x cross-point)
+                   (cdg-rect-min-x (cdg-box-rect crash-box))))
+            (cdg-ball-change-direct *cdg-ball*
+                                    (cdg-mirror-vector ball-dir 'vertical))
+            (cdg-ball-change-direct *cdg-ball*
+                                    (cdg-mirror-vector ball-dir 'horizontal)))))))
 
 ;; Функции отрисовки игровых объектов
 
