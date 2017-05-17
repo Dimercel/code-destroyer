@@ -301,14 +301,13 @@
         (cdg-ball-move-to *cdg-ball* cross-point)
         ;; Произошло столкновение, вектор направления игрового
         ;; мяча должен измениться
-        (if (or (= (cdg-point-x cross-point)
-                   (cdg-rect-min-x (cdg-box-rect crash-box)))
-                (= (cdg-point-x cross-point)
-                   (cdg-rect-max-x (cdg-box-rect crash-box))))
+        (let ((cross-side (cdg-rect-point-side
+                           (cdg-box-rect crash-box)
+                           cross-point)))
+          (when cross-side
             (cdg-ball-change-direct *cdg-ball*
-                                    (cdg-mirror-vector ball-dir 'vertical))
-            (cdg-ball-change-direct *cdg-ball*
-                                    (cdg-mirror-vector ball-dir 'horizontal)))))))
+                                    (cdg-mirror-vector ball-dir
+                                                      cross-side))))))))
 
 ;; Функции отрисовки игровых объектов
 

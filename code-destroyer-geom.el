@@ -204,3 +204,19 @@
                      (cdg-vline-ray-intersection (cdg-rect-max-x rect)
                                                  ray-start
                                                  ray-direction))))))
+
+(defun cdg-rect-point-side (rect cross-point)
+  "Возвращает тип стороны прямоугольника, которой
+  принадлежит точка. Всего два типа горизонтальная
+  сторона и вертикальная"
+  (cond ((or (= (cdg-point-x cross-point)
+                (cdg-rect-min-x rect))
+             (= (cdg-point-x cross-point)
+                (cdg-rect-max-x rect)))
+         'vertical)
+        ((or (= (cdg-point-y cross-point)
+                (cdg-rect-min-y rect))
+             (= (cdg-point-y cross-point)
+                (cdg-rect-max-y rect)))
+         'horizontal)
+        (t nil)))
