@@ -307,7 +307,40 @@
           (when cross-side
             (cdg-ball-change-direct *cdg-ball*
                                     (cdg-mirror-vector ball-dir
-                                                      cross-side))))))))
+                                                       cross-side))))))))
+
+
+(defun cdg-ball-limits-collision ()
+  "Не позволяет мячу улететь за пределы игровой зоны.
+  При соприкосновении мяча и границы зоны, мяч должен
+  вести себя как и при столкновении с боксом."
+  (labels ((calc-cross-point (rect)
+             (vector rect
+                     (cdg-rect-ray-intersection
+                      rect
+                      (cdg-ball-pos *cdg-ball*)
+                      (cdg-ball-direct *cdg-ball*))))
+           (filter-by-dist (x)
+            (or (null (aref x 1))
+                (> (cdg-point-dist (cdg-ball-pos *cdg-ball*)
+                                   (aref x 1))
+                   +cdg-ball-step+))))
+    (setq crash-item
+          (first
+           (remove-if #'filter-by-dist
+                      (map 'list
+                           #'calc-cross-point
+                           (cdg-limiting-rects *cdg-game-zone*)))))
+    (if crash-item
+        (progn
+          (cdg-ball-move-to (aref crash-item 1))
+          (cdg-ball-change-direct
+           *cdg-ball*
+           (cdg-mirror-vector (cdg-ball-direct *cdg-ball*)
+                              (cdg-rect-point-side (aref crash-item 0)
+                                                   (aref crash-item 1))))
+          t)
+      nil)))
 
 ;; Функции отрисовки игровых объектов
 
@@ -371,7 +404,8 @@
   "Главный цикл игры"
     (when (eq (current-buffer) *cdg-game-buffer*)
       (unless *cdg-ball-on-platform*
-        (unless (cdg-ball-boxes-collision)
+        (unless (and (cdg-ball-boxes-collision)
+                     (cdg-ball-limits-collision))
           (cdg-ball-move *cdg-ball* +cdg-ball-step+)))
       (cdg-draw-game)))
 

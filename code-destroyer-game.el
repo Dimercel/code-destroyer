@@ -251,6 +251,20 @@
                       result)))))
     result))
 
+(defun cdg-limiting-rects (zone)
+  "Вернет список из трех прямоугольников,ограничивающих игровую
+  зону. Они представляют собой границы, от которых должен
+  отскакивать мяч, если на его пути не оказалось боксов"
+  (let ((zwidth (cdg-rect-width (cdg-zone-rect zone)))
+        (zheight (cdg-rect-height (cdg-zone-rect zone))))
+    (list
+     (cdg-make-rect (cdg-make-point -1 zheight) ; прямоугольник слева
+                    (cdg-make-point 0 0))
+     (cdg-make-rect (cdg-make-point 0 (1+ zheight)) ; прямоугольник сверху
+                    (cdg-make-point zwidth zheight))
+     (cdg-make-rect (cdg-make-point zwidth zheight) ; прямоугольник справа
+                    (cdg-make-point (1+ zwidth) 0)))))
+
 
 ;;; Проверка на столкновения
 
