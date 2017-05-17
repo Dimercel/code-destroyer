@@ -302,7 +302,9 @@
         ;; Произошло столкновение, вектор направления игрового
         ;; мяча должен измениться
         (if (or (= (cdg-point-x cross-point)
-                   (cdg-rect-min-x (cdg-box-rect crash-box))))
+                   (cdg-rect-min-x (cdg-box-rect crash-box)))
+                (= (cdg-point-x cross-point)
+                   (cdg-rect-max-x (cdg-box-rect crash-box))))
             (cdg-ball-change-direct *cdg-ball*
                                     (cdg-mirror-vector ball-dir 'vertical))
             (cdg-ball-change-direct *cdg-ball*
