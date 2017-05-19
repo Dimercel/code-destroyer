@@ -363,15 +363,16 @@
                          (cdg-platform-char platform)))))
 
 (defun cdg-draw-ball (ball char-buffer zone)
-  "Отрисова игрового мяча. Представляется одним
+  "Отрисовка игрового мяча. Представляется одним
    единственным символом в указанной позиции"
   (let ((ball-pos (cdg-zone-point-coord zone
                                         (cdg-ball-pos ball))))
-    (cdg-set-char-safe char-buffer
-                       (- (cdg-char-buffer-rows char-buffer)
-                          (truncate (1+ (cdg-point-y ball-pos))))
-                       (truncate (cdg-point-x ball-pos))
-                       (cdg-ball-char ball))))
+    (when ball-pos
+      (cdg-set-char-safe char-buffer
+                         (- (cdg-char-buffer-rows char-buffer)
+                            (truncate (1+ (cdg-point-y ball-pos))))
+                         (truncate (cdg-point-x ball-pos))
+                         (cdg-ball-char ball)))))
 
 (defun cdg-draw-boxes (boxes char-buffer zone)
   (dolist (box boxes)

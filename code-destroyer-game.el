@@ -231,25 +231,28 @@
   "Возвращает список квадратов, которые пересекает отрезок, заданный двумя
   точками. Так как внутри игровой зоны расчеты ведутся в игровых единицах, то
   размеры квадратов равны 1 единице"
-  (let* ((main-rect (cdg-make-rect-by-2-points point1 point2))
-         (lt (cdg-rect-left-top main-rect))
-         (rb (cdg-rect-right-bottom main-rect))
-         (lt-square (cdg-zone-point-coord zone lt))
-         (rb-square (cdg-zone-point-coord zone rb))
-         (hdist (- (cdg-point-x rb-square) (cdg-point-x lt-square)))
-         (vdist (- (cdg-point-y lt-square) (cdg-point-y rb-square)))
-         (result '()))
-    (dotimes (r (1+ hdist))
-      (dotimes (c (1+ vdist))
-        (let* ((left (* (+ (cdg-point-x lt-square) c) +cdg-game-unit+))
-               (top  (* (1+ (- (cdg-point-y lt-square) r)) +cdg-game-unit+))
-               (right (+ left +cdg-game-unit+))
-               (bottom (- top +cdg-game-unit+)))
-          (setq result
-                (cons (cdg-make-rect (cdg-make-point left top)
-                                     (cdg-make-point right bottom))
-                      result)))))
-    result))
+  (if (and (cdg-zone-point-test zone point1)
+           (cdg-zone-point-test zone point2))
+    (let* ((main-rect (cdg-make-rect-by-2-points point1 point2))
+            (lt (cdg-rect-left-top main-rect))
+            (rb (cdg-rect-right-bottom main-rect))
+            (lt-square (cdg-zone-point-coord zone lt))
+            (rb-square (cdg-zone-point-coord zone rb))
+            (hdist (- (cdg-point-x rb-square) (cdg-point-x lt-square)))
+            (vdist (- (cdg-point-y lt-square) (cdg-point-y rb-square)))
+            (result '()))
+      (dotimes (r (1+ hdist))
+        (dotimes (c (1+ vdist))
+          (let* ((left (* (+ (cdg-point-x lt-square) c) +cdg-game-unit+))
+                  (top  (* (1+ (- (cdg-point-y lt-square) r)) +cdg-game-unit+))
+                  (right (+ left +cdg-game-unit+))
+                  (bottom (- top +cdg-game-unit+)))
+            (setq result
+                  (cons (cdg-make-rect (cdg-make-point left top)
+                                        (cdg-make-point right bottom))
+                        result)))))
+      result)
+    nil))
 
 (defun cdg-limiting-rects (zone)
   "Вернет список из трех прямоугольников,ограничивающих игровую
@@ -296,3 +299,9 @@
                                    (map 'list #'cdg-box-pos result))))
       (first (delete-if-not (lambda (x) (equal near (cdg-box-pos x)))
                             result)))))
+
+(defun cdg-zone-point-test (zone point)
+  "Если точка находится внутри зоны вернет истину,
+   иначе nil"
+  (cdg-rect-point-test (cdg-zone-rect zone)
+                       point))

@@ -87,7 +87,8 @@
   (list left-top right-bottom))
 
 (defun cdg-make-rect-by-2-points (point1 point2)
-  "Строит прямоугольник по двум, произвольным точкам"
+  "Строит прямоугольник по двум точкам, не принадлежащим
+  одной и той же стороне"
   (let ((min-x (min (cdg-point-x point1) (cdg-point-x point2)))
         (max-x (max (cdg-point-x point1) (cdg-point-x point2)))
         (min-y (min (cdg-point-y point1) (cdg-point-y point2)))
