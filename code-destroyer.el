@@ -29,7 +29,7 @@
 
   (cdg-init)
   (switch-to-buffer *cdg-game-buffer*)
-  (setq *cdg-game-timer* (run-with-timer 0 1.0 'cdg-main-loop)))
+  (setq *cdg-game-timer* (run-with-timer 0 0.5 'cdg-main-loop)))
 
 
 ;;; Раздел объявления констант и переменных
@@ -82,6 +82,9 @@
   "Игровая единица масштаба. Игровое поле целиком состоит из квадратов
   одинаковых размеров, данная константа представляет размер стороны такого
   элементарного квадрата.")
+
+(defconst +cdg-gap+ (/ +cdg-game-unit+ 100.0)
+  "Величина зазора. Малая относительно величины игровой единицы.")
 
 (defconst +cdg-ball-step+ (/ +cdg-game-unit+ 2.0)
   "Длина пути, который проходит мяч за один шаг")
@@ -307,40 +310,52 @@
           (when cross-side
             (cdg-ball-change-direct *cdg-ball*
                                     (cdg-mirror-vector ball-dir
-                                                       cross-side))))))))
+                                                       cross-side))
+            ;; передвигаем мяч вперед, чтобы он не находился
+            ;; на границе пересечения
+            (cdg-ball-move *cdg-ball* +cdg-gap+)))))))
 
 
 (defun cdg-ball-limits-collision ()
   "Не позволяет мячу улететь за пределы игровой зоны.
   При соприкосновении мяча и границы зоны, мяч должен
   вести себя как и при столкновении с боксом."
-  (labels ((calc-cross-point (rect)
-             (vector rect
-                     (cdg-rect-ray-intersection
-                      rect
-                      (cdg-ball-pos *cdg-ball*)
-                      (cdg-ball-direct *cdg-ball*))))
-           (filter-by-dist (x)
-            (or (null (aref x 1))
-                (> (cdg-point-dist (cdg-ball-pos *cdg-ball*)
-                                   (aref x 1))
-                   +cdg-ball-step+))))
-    (setq crash-item
-          (first
-           (remove-if #'filter-by-dist
-                      (map 'list
-                           #'calc-cross-point
-                           (cdg-limiting-rects *cdg-game-zone*)))))
-    (if crash-item
-        (progn
-          (cdg-ball-move-to (aref crash-item 1))
-          (cdg-ball-change-direct
-           *cdg-ball*
-           (cdg-mirror-vector (cdg-ball-direct *cdg-ball*)
-                              (cdg-rect-point-side (aref crash-item 0)
-                                                   (aref crash-item 1))))
-          t)
-      nil)))
+  (let ((crash-item nil))
+    (labels ((calc-cross-point (rect)
+                               (vector rect
+                                       (cdg-rect-ray-intersection
+                                        rect
+                                        (cdg-ball-pos *cdg-ball*)
+                                        (cdg-ball-direct *cdg-ball*))))
+             (filter-by-dist (x)
+                             (or (null (aref x 1))
+                                 (> (cdg-point-dist (cdg-ball-pos *cdg-ball*)
+                                                    (aref x 1))
+                                    +cdg-ball-step+))))
+      (setq crash-item
+            (first
+             (remove-if #'filter-by-dist
+                        (map 'list
+                             #'calc-cross-point
+                             (cdg-limiting-rects *cdg-game-zone*)))))
+      (if crash-item
+          (progn
+            (cdg-debug (format "Пересечение с границей окна: %s" (aref crash-item 1)))
+            (cdg-ball-move-to *cdg-ball* (aref crash-item 1))
+            (cdg-ball-change-direct
+             *cdg-ball*
+             (cdg-mirror-vector (cdg-ball-direct *cdg-ball*)
+                                (cdg-rect-point-side (aref crash-item 0)
+                                                     (aref crash-item 1))))
+            (cdg-ball-move *cdg-ball* +cdg-gap+)
+            t)
+        nil))))
+
+
+(defun cdg-collision ()
+  (or
+   (cdg-ball-boxes-collision)
+   (cdg-ball-limits-collision)))
 
 ;; Функции отрисовки игровых объектов
 
@@ -405,8 +420,7 @@
   "Главный цикл игры"
     (when (eq (current-buffer) *cdg-game-buffer*)
       (unless *cdg-ball-on-platform*
-        (unless (and (cdg-ball-boxes-collision)
-                     (cdg-ball-limits-collision))
+        (unless (cdg-collision)
           (cdg-ball-move *cdg-ball* +cdg-ball-step+)))
       (cdg-draw-game)))
 
