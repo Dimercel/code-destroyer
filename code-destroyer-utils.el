@@ -22,7 +22,9 @@
 
 (defun cdg-2d->1d (row col col-count)
   "Конвертирует индекс двумерного массива в одномерный"
-  (if (< col col-count)
+  (if (and (< col col-count)
+           (every (lambda (x) (>= x 0))
+                  (list row col col-count)))
       (+ (* row col-count) col)
     nil))
 

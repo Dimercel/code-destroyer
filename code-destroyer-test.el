@@ -1,4 +1,7 @@
 (require 'ert)
+(require 'code-destroyer-utils)
+(require 'code-destroyer-geom)
+(require 'code-destroyer-game)
 (require 'code-destroyer)
 
 
@@ -15,14 +18,14 @@
 
 (ert-deftest cdg-make-char-buffer ()
   (should
-   (equal (cdg-char-buf-body (cdg-make-char-buffer 3 2 ?x))
-          "xxxxxx"))
+   (equal (cdg-make-char-buffer 3 0 ?x)
+          nil))
   (should
-   (equal (cdg-char-buf-body (cdg-make-char-buffer 0 2 ?x))
-          ""))
+   (equal (cdg-make-char-buffer 0 3 ?x)
+          nil))
   (should
-   (equal (cdg-char-buf-body (cdg-make-char-buffer 2 0 ?x))
-          "")))
+   (equal (cdg-make-char-buffer 0 0 ?x)
+          nil)))
 
 (ert-deftest cdg-make-char-buffer-by-string ()
   (should
@@ -35,48 +38,22 @@
    (equal (cdg-make-char-buffer-by-string "xxx" 2 ?x)
           (cdg-make-char-buffer 2 2 ?x))))
 
-(ert-deftest cdg-resize-char-buffer ()
+(ert-deftest cdg-char-buffer-rows ()
   (should
-   (equal (cdg-resize-char-buffer (cdg-make-char-buffer 4 4 ?x)
-                                  6
-                                  6
-                                  ?x)
-          (cdg-make-char-buffer 6 6 ?x)))
-  (should
-   (equal (cdg-resize-char-buffer (cdg-make-char-buffer 4 4 ?x)
-                                  0
-                                  0
-                                  ?x)
-          (cdg-make-char-buffer 0 0 ?x)))
-  (should
-   (equal (cdg-resize-char-buffer (cdg-make-char-buffer 4 4 ?x)
-                                  0
-                                  2
-                                  ?x)
-          (cdg-make-char-buffer 0 2 ?x)))
-  (should
-   (equal (cdg-resize-char-buffer (cdg-make-char-buffer 4 4 ?x)
-                                  0
-                                  0
-                                  ?x)
-          (cdg-make-char-buffer 0 0 ?x))))
-
-(ert-deftest cdg-char-buf-row-count ()
-  (should
-   (equal (cdg-char-buf-row-count (cdg-make-char-buffer 10 8 ?x))
+   (equal (cdg-char-buffer-rows (cdg-make-char-buffer 10 8 ?x))
           10)))
 
-(ert-deftest cdg-char-buf-col-count ()
+(ert-deftest cdg-char-buffer-cols ()
   (should
-    (equal (cdg-char-buf-col-count (cdg-make-char-buffer 10 8 ?x))
+    (equal (cdg-char-buffer-cols (cdg-make-char-buffer 10 8 ?x))
           8)))
 
-(ert-deftest cdg-char-buf-size ()
+(ert-deftest cdg-char-buffer-size ()
   (let ((test-buffer (cdg-make-char-buffer 10 8 ?x)))
     (should
-     (equal (* (cdg-char-buf-row-count test-buffer)
-               (cdg-char-buf-col-count test-buffer))
-            (cdg-char-buf-size test-buffer)))))
+     (equal (* (cdg-char-buffer-rows test-buffer)
+               (cdg-char-buffer-cols test-buffer))
+            (cdg-char-buffer-size test-buffer)))))
 
 (ert-deftest cdg-mirror-vector ()
   (should
@@ -103,27 +80,15 @@
            'horizontal)
           [0.5 -0.5])))
 
-(ert-deftest cdg-erase-char-buffer ()
+(ert-deftest cdg-2d->1d ()
+  ;; Массив не содержит отрицательных индексов,
+  ;; поэтому нужно вернуть nil
   (should
-   (equal (cdg-erase-char-buffer (cdg-make-char-buffer 4 4 ?x)
-                                 ?t)
-          (cdg-make-char-buffer 4 4 ?t)))
+   (equal (cdg-2d->1d -1 3 10) nil))
   (should
-   (equal (cdg-erase-char-buffer (cdg-make-char-buffer 0 4 ?x)
-                                 ?t)
-          (cdg-make-char-buffer 0 4 ?x))))
-
-(ert-deftest cdg-2d-to-1d-inx ()
-  (let ((test-buffer (cdg-make-char-buffer 2 4 ?x)))
-    (should
-     (equal (cdg-2d-to-1d-inx test-buffer -1 3)
-            nil))
-    (should
-     (equal (cdg-2d-to-1d-inx test-buffer 1 -1)
-            nil))
-    (should
-     (equal (cdg-2d-to-1d-inx test-buffer 1 2)
-            6))))
+   (equal (cdg-2d->1d 1 -1 10) nil))
+  (should
+   (equal (cdg-2d->1d 1 2 4) 6)))
 
 (ert-deftest cdg-invert-vector ()
   (let ((test-vec [2.0 -1.7]))
@@ -134,20 +99,23 @@
             (cdg-invert-vector test-vec)))))
 
 (ert-deftest cdg-platform-move ()
-  (should
-   (equal (cdg-platform-pos (cdg-platform-move (cdg-make-platform 10.0 5 0.1 ?x) 5.0))
-          15.0))
-  (should
-   (equal (cdg-platform-pos (cdg-platform-move (cdg-make-platform 10.0 5 0.1 ?x) -5.0))
-          5.0))
-  (should
-   (equal (cdg-platform-pos (cdg-platform-move (cdg-make-platform 10.0 5 0.1 ?x) -15.0))
-          0)))
+  (let ((test-platform (cdg-make-platform 10.0 5.0 0.1 ?x)))
+    (cdg-platform-move test-platform 5.0)
+    (should
+     (equal (cdg-platform-pos test-platform)
+            15.0))
+    (cdg-platform-move test-platform -5.0)
+    (should
+     (equal (cdg-platform-pos test-platform)
+            10.0))))
 
 (ert-deftest cdg-platform-move-to ()
-  (should
-   (equal (cdg-platform-pos (cdg-platform-move-to (cdg-make-platform 10.0 5 0.1 ?x) 5.0))
-          5.0))
-  (should
-   (equal (cdg-platform-pos (cdg-platform-move-to (cdg-make-platform 10.0 5 0.1 ?x) -5.0))
-          10.0)))
+  (let ((test-platform (cdg-make-platform 10.0 5.0 0.1 ?x)))
+    (cdg-platform-move-to test-platform 5.0)
+    (should
+     (equal (cdg-platform-pos test-platform)
+            5.0))
+    (cdg-platform-move-to test-platform -5.0)
+    (should
+     (equal (cdg-platform-pos test-platform)
+            -5.0))))
