@@ -5,6 +5,13 @@
 (require 'code-destroyer)
 
 
+;; Вспомогательные функции
+
+(defun cdg-vector-len (vec)
+  (cdg-point-dist (cdg-make-point 0 0)
+                  (cdg-make-point-by-vec vec)))
+
+
 
 ;;; Тесты для вспомогательных функций
 
@@ -41,6 +48,121 @@
   (should
    (equal (cdg-2d->1d 1 2 4) 6)))
 
+
+
+;;; Тесты геометрических функций
+
+
+
+(ert-deftest cdg-make-point ()
+  (should
+   (and (floatp (cdg-point-x (cdg-make-point 1 1)))
+        (floatp (cdg-point-y (cdg-make-point 1 1)))))
+  (should
+   (equal (cdg-make-point 1 1)
+          (cdg-make-point-by-vec [1 1])))
+  (should
+   (and (= 2.0 (cdg-point-x (cdg-make-point 2 4)))
+        (= 4.0 (cdg-point-y (cdg-make-point 2 4))))))
+
+
+(ert-deftest cdg-make-point-by-vec ()
+  (should
+   (and (= -2.0 (cdg-point-x (cdg-make-point-by-vec [-2 -4])))
+        (= -4.0 (cdg-point-y (cdg-make-point-by-vec [-2 -4])))))
+  (should-error (cdg-make-point-by-vec [1])))
+
+(ert-deftest cdg-point-xy ()
+  (should
+   (and (= 4.0 (cdg-point-x (cdg-make-point 4.0 2.0)))
+        (= 2.0 (cdg-point-y (cdg-make-point 4.0 2.0))))))
+
+(ert-deftest cdg-point-inc ()
+  (should
+   (equal (cdg-point-inc (cdg-make-point 1 1) 5)
+          (cdg-make-point 6 6)))
+  (should
+   (equal (cdg-point-inc (cdg-make-point 42 7) 7 42)
+          (cdg-make-point 49 49)))
+  (should
+   (equal (cdg-point-inc (cdg-make-point 1 1) -5)
+          (cdg-make-point -4 -4)))
+  (should
+   (equal (cdg-point-inc (cdg-make-point 42 7) -42 -7)
+          (cdg-make-point 0 0))))
+
+(ert-deftest cdg-dist-between-points ()
+  (let ((p1 (cdg-make-point 1 2.2))
+        (p2 (cdg-make-point 3.3 -4)))
+    (should
+     (< (cdg-point-dist p1 p2)
+        (cdg-point-dist-square p1 p2)))
+    (should
+     (and (= 0 (cdg-point-dist p1 p1))
+          (= 0 (cdg-point-dist-square p2 p2))))))
+
+(ert-deftest cdg-closest-point ()
+  (should-not (cdg-closest-point (cdg-make-point 0 0) '()))
+  (should
+   (equal (cdg-closest-point (cdg-make-point 0 0)
+                             (list (cdg-make-point 0 0)
+                                   (cdg-make-point 1 1)
+                                   (cdg-make-point -1 -1)))
+          (cdg-make-point 0 0)))
+  (should
+   (equal (cdg-closest-point (cdg-make-point 0 0)
+                             (list (cdg-make-point -0.5 -0.5)
+                                   (cdg-make-point -1 -1)
+                                   (cdg-make-point 1 1)))
+          (cdg-make-point -0.5 -0.5))))
+
+(ert-deftest cdg-point-hline-vline ()
+  (let ((point (cdg-make-point 0 0)))
+    (should (cdg-left-vline-p 1 point))
+    (should (cdg-right-vline-p -1 point))
+    (should (cdg-above-hline-p -1 point))
+    (should (cdg-under-hline-p 1 point))
+
+    (should-not (cdg-left-vline-p -1 point))
+    (should-not (cdg-right-vline-p 1 point))
+    (should-not (cdg-above-hline-p 1 point))
+    (should-not (cdg-under-hline-p -1 point))
+
+    ;; Если точка принадлежит прямой, то она
+    ;; не левее, не выше, не ниже и не выше ее
+    (should-not (cdg-left-vline-p 0 point))
+    (should-not (cdg-right-vline-p 0 point))
+    (should-not (cdg-above-hline-p 0 point))
+    (should-not (cdg-under-hline-p 0 point))))
+
+(ert-deftest cdg-normalize-vec ()
+  ;; Вектор и его орт должны быть одинаковых знаков
+  (should
+   (apply #'cdg-same-sign-p
+          (append
+           (vconcat [1.0 2.0]
+                    (cdg-normalize-vec [1.0 2.0]))
+           nil)))
+  (should
+   (apply #'cdg-same-sign-p
+          (append
+           (vconcat [-1.0 -2.0]
+                    (cdg-normalize-vec [-1.0 -2.0]))
+           nil)))
+  (should
+   (< (cdg-vector-len (cdg-normalize-vec [5 5]))
+      (cdg-vector-len [5 5]))))
+
+(ert-deftest cdg-mirror-vector ()
+  (should
+   (equal (cdg-mirror-vector [-1 -1] 'horizontal)
+          [-1 1]))
+  (should
+   (equal (cdg-mirror-vector [-1 -1] 'vertical)
+          [1 -1]))
+  (should
+   (equal (cdg-mirror-vector [0 0] 'vertical)
+          [0 0])))
 
 (ert-deftest cdg-make-char-buffer ()
   (should

@@ -33,7 +33,7 @@
 
 (defun cdg-closest-point (point other)
   "Возвращает ближайшую к point точку из списка other"
-  (when (not (eq nil other))
+  (when (not (null other))
     (aref (reduce (lambda (acc x)
                     (let ((dist (cdg-point-dist-square point x)))
                       (if (< dist (aref acc 1))
