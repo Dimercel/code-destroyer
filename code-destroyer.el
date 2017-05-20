@@ -249,12 +249,6 @@
     (cdg-debug (format "Начальное положение мяча: %s"
                        (cdg-ball-pos *cdg-ball*)))))
 
-(defmacro cdg-debug (&rest body)
-  "Output debug info, if *cdg-debug* is t"
-  `(when *cdg-debug*
-     (print (concat ,@body)
-            (get-buffer-create "cdg-debug"))))
-
 (defun cdg-make-boxes-by-buf-text (buffer start-y box-size)
   "Строит игровые боксы на основе текста буфера. Каждый символ текста
    рассматривается как игровой бокс. Размер бокса указывается в игровых единицах"

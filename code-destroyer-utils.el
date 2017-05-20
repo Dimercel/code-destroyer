@@ -1,6 +1,12 @@
 ;;; Вспомогательные функции, используемые повсеместно
 
 
+(defmacro cdg-debug (&rest body)
+  "Output debug info, if *cdg-debug* is t"
+  `(when *cdg-debug*
+     (print (concat ,@body)
+            (get-buffer-create "cdg-debug"))))
+
 (defun space-p (char)
   (eq char +cdg-space-sym+))
 
