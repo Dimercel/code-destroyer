@@ -162,7 +162,21 @@
           [1 -1]))
   (should
    (equal (cdg-mirror-vector [0 0] 'vertical)
-          [0 0])))
+          [0 0]))
+  (should-not
+    (equal (cdg-mirror-vector [0.5 -0.5] 'vertical)
+           (cdg-mirror-vector [0.5 -0.5] 'horizontal)))
+
+  (should
+   (equal (cdg-mirror-vector
+           (cdg-mirror-vector [0.5 -0.5] 'horizontal)
+           'horizontal)
+          [0.5 -0.5]))
+  (should
+   (equal (cdg-mirror-vector
+           (cdg-mirror-vector [0.5 -0.5] 'vertical)
+           'vertical)
+          [0.5 -0.5])))
 
 (ert-deftest cdg-make-char-buffer ()
   (should
@@ -202,31 +216,6 @@
      (equal (* (cdg-char-buffer-rows test-buffer)
                (cdg-char-buffer-cols test-buffer))
             (cdg-char-buffer-size test-buffer)))))
-
-(ert-deftest cdg-mirror-vector ()
-  (should
-   (equal (cdg-mirror-vector [0.5 -0.5] 'horizontal)
-          [0.5 0.5]))
-  (should
-   (equal (cdg-mirror-vector [0.5 -0.5] 'vertical)
-          [-0.5 -0.5]))
-  (should
-   (not
-    (equal (cdg-mirror-vector [0.5 -0.5] 'vertical)
-           (cdg-mirror-vector [0.5 -0.5] 'horizontal))))
-  (should
-   (equal (cdg-mirror-vector
-           (cdg-mirror-vector [0.5 -0.5] 'vertical)
-           'vertical)
-          [0.5 -0.5]))
-  (should
-   (not (equal (cdg-mirror-vector [0.5 -0.5] 'vertical)
-               (cdg-mirror-vector [0.5 -0.5] 'horizontal))))
-  (should
-   (equal (cdg-mirror-vector
-           (cdg-mirror-vector [0.5 -0.5] 'horizontal)
-           'horizontal)
-          [0.5 -0.5])))
 
 (ert-deftest cdg-invert-vector ()
   (let ((test-vec [2.0 -1.7]))
