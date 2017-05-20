@@ -7,7 +7,7 @@
      (print (concat ,@body)
             (get-buffer-create "cdg-debug"))))
 
-(defun space-p (char)
+(defun cdg-space-p (char)
   (eq char +cdg-space-sym+))
 
 (defun cdg-to-length (str new-length fill-char)
@@ -28,9 +28,7 @@
 
 (defun cdg-2d->1d (row col col-count)
   "Конвертирует индекс двумерного массива в одномерный"
-  (if (and (< col col-count)
-           (every (lambda (x) (>= x 0))
-                  (list row col col-count)))
+  (if (< col col-count)
       (+ (* row col-count) col)
     nil))
 

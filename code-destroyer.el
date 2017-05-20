@@ -259,7 +259,7 @@
       (with-win-text text-line
         (dotimes (char-inx (length text-line))
           (let ((cur-char (aref text-line char-inx)))
-            (when (not (space-p cur-char))
+            (when (not (cdg-space-p cur-char))
               (setq boxes
                     (cons (cdg-make-box (cdg-make-point (* char-inx box-size-dec)
                                                         y-pos)

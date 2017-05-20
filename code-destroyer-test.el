@@ -5,6 +5,16 @@
 (require 'code-destroyer)
 
 
+
+;;; Тесты для вспомогательных функций
+
+
+
+(ert-deftest cdg-space-p ()
+  (should (cdg-space-p +cdg-space-sym+))
+  (should-not (cdg-space-p (+ +cdg-space-sym+ 1)))
+  (should-not (cdg-space-p nil)))
+
 (ert-deftest cdg-to-length ()
   (should
    (equal (cdg-to-length "test string" 4 ? )
@@ -14,7 +24,23 @@
           "xxxx"))
   (should
    (equal (cdg-to-length "test string" 0 ?x)
-          "")))
+          ""))
+  (should-error (cdg-to-length "" -1 ?x)
+                :type 'args-out-of-range))
+
+(ert-deftest cdg-same-sign-p ()
+  (should (cdg-same-sign-p 1 2 3 4 5))
+  (should (cdg-same-sign-p -1 -2 -3 -4 -5))
+  (should-not (cdg-same-sign-p -1 2 -3)))
+
+(ert-deftest cdg-2d->1d ()
+  ;; Массив не содержит отрицательных индексов,
+  ;; поэтому нужно вернуть nil
+  (should
+   (equal (cdg-2d->1d 2 2 0) nil))
+  (should
+   (equal (cdg-2d->1d 1 2 4) 6)))
+
 
 (ert-deftest cdg-make-char-buffer ()
   (should
@@ -79,16 +105,6 @@
            (cdg-mirror-vector [0.5 -0.5] 'horizontal)
            'horizontal)
           [0.5 -0.5])))
-
-(ert-deftest cdg-2d->1d ()
-  ;; Массив не содержит отрицательных индексов,
-  ;; поэтому нужно вернуть nil
-  (should
-   (equal (cdg-2d->1d -1 3 10) nil))
-  (should
-   (equal (cdg-2d->1d 1 -1 10) nil))
-  (should
-   (equal (cdg-2d->1d 1 2 4) 6)))
 
 (ert-deftest cdg-invert-vector ()
   (let ((test-vec [2.0 -1.7]))
