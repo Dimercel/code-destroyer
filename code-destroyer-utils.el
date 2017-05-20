@@ -15,7 +15,7 @@
               (make-string (- new-length old-length)
                            fill-char)))))
 
-(defun cdg-same-signp (&rest numbers)
+(defun cdg-same-sign-p (&rest numbers)
   "Все указанные числа одного знака?"
   (or (every (lambda (x) (>= x 0)) numbers)
       (every (lambda (x) (<= x 0)) numbers)))
