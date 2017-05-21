@@ -86,7 +86,7 @@
 
 (defun cdg-make-rect (left-top right-bottom)
   "Строит прямоугольник по двум переданным точкам"
-  (list left-top right-bottom))
+  (vector left-top right-bottom))
 
 (defun cdg-make-rect-by-2-points (point1 point2)
   "Строит прямоугольник по двум точкам, не принадлежащим
@@ -99,22 +99,22 @@
                    (cdg-make-point max-x min-y))))
 
 (defun cdg-rect-left-top (rect)
-  (first rect))
+  (aref rect 0))
 
 (defun cdg-rect-right-bottom (rect)
-  (second rect))
+  (aref rect 1))
 
 (defun cdg-rect-min-x (rect)
-  (cdg-point-x (first rect)))
+  (cdg-point-x (aref rect 0)))
 
 (defun cdg-rect-max-x (rect)
-  (cdg-point-x (second rect)))
+  (cdg-point-x (aref rect 1)))
 
 (defun cdg-rect-min-y (rect)
-  (cdg-point-y (second rect)))
+  (cdg-point-y (aref rect 1)))
 
 (defun cdg-rect-max-y (rect)
-  (cdg-point-y (first rect)))
+  (cdg-point-y (aref rect 0)))
 
 (defun cdg-rect-width (rect)
   (abs (- (cdg-rect-max-x rect)

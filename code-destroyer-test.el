@@ -41,8 +41,6 @@
   (should-not (cdg-same-sign-p -1 2 -3)))
 
 (ert-deftest cdg-2d->1d ()
-  ;; Массив не содержит отрицательных индексов,
-  ;; поэтому нужно вернуть nil
   (should
    (equal (cdg-2d->1d 2 2 0) nil))
   (should
@@ -178,6 +176,63 @@
            'vertical)
           [0.5 -0.5])))
 
+(ert-deftest cdg-invert-vector ()
+  (should
+   (equal [2.0 -1.7]
+          (cdg-invert-vector
+           (cdg-invert-vector [2.0 -1.7]))))
+  (should
+   (equal [0 0]
+          (cdg-invert-vector [0 0]))))
+
+(ert-deftest cdg-make-rect ()
+  (let ((p1 (cdg-make-point -7 17.0))
+        (p2 (cdg-make-point 5.5 -1.1)))
+  (should
+   (equal (cdg-make-rect p1 p2)
+          (cdg-make-rect-by-2-points p2 p1)))))
+
+(ert-deftest cdg-rect-accessors ()
+  (let ((test-rect (cdg-make-rect (cdg-make-point -1 1)
+                                  (cdg-make-point 2 -2))))
+    (should
+     (equal (cdg-rect-left-top test-rect)
+            (cdg-make-point -1 1)))
+    (should
+     (equal (cdg-rect-right-bottom test-rect)
+            (cdg-make-point 2 -2)))
+    (should
+     (equal (cdg-rect-min-x test-rect)
+            -1.0))
+    (should
+     (equal (cdg-rect-max-x test-rect)
+            2.0))
+    (should
+     (equal (cdg-rect-min-y test-rect)
+            -2.0))
+    (should
+     (equal (cdg-rect-max-y test-rect)
+            1.0))
+    (should
+     (equal (cdg-rect-width test-rect)
+            3.0))
+    (should
+     (equal (cdg-rect-height test-rect)
+            3.0))))
+
+(ert-deftest cdg-rect-point-test ()
+  (let ((test-rect (cdg-make-rect (cdg-make-point 0 1)
+                                  (cdg-make-point 1 0))))
+    ;; Точка внутри
+    (should
+     (cdg-rect-point-test test-rect (cdg-make-point 0.5 0.5)))
+    ;; Точка снаружи
+    (should-not
+     (cdg-rect-point-test test-rect (cdg-make-point -0.5 -0.5)))
+    ;; Точка принадлежит стороне прямоугольника
+    (should
+     (cdg-rect-point-test test-rect (cdg-make-point 0.5 1)))))
+
 (ert-deftest cdg-make-char-buffer ()
   (should
    (equal (cdg-make-char-buffer 3 0 ?x)
@@ -216,14 +271,6 @@
      (equal (* (cdg-char-buffer-rows test-buffer)
                (cdg-char-buffer-cols test-buffer))
             (cdg-char-buffer-size test-buffer)))))
-
-(ert-deftest cdg-invert-vector ()
-  (let ((test-vec [2.0 -1.7]))
-    (should
-     (equal (cdg-mirror-vector
-             (cdg-mirror-vector test-vec 'vertical)
-             'horizontal)
-            (cdg-invert-vector test-vec)))))
 
 (ert-deftest cdg-platform-move ()
   (let ((test-platform (cdg-make-platform 10.0 5.0 0.1 ?x)))
