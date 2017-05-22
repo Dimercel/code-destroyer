@@ -144,7 +144,7 @@
 
 (defun cdg-vline-ray-inter-exist-p (line-x ray-start ray-direction)
   "Существует ли точка пересечения вертикальной прямой и
-   другой прямой, заданной вектором"
+   луча, заданного вектором"
   (if (= line-x (cdg-point-x ray-start))
       t
     (or
@@ -155,7 +155,7 @@
 
 (defun cdg-hline-ray-inter-exist-p (line-y ray-start ray-direction)
   "Существует ли точка пересечения горизонтальной прямой и
-   другой прямой, заданной вектором"
+   луча, заданного вектором"
   (if (= line-y (cdg-point-y ray-start))
       t
     (or

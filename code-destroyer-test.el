@@ -202,23 +202,17 @@
      (equal (cdg-rect-right-bottom test-rect)
             (cdg-make-point 2 -2)))
     (should
-     (equal (cdg-rect-min-x test-rect)
-            -1.0))
+     (equal (cdg-rect-min-x test-rect) -1.0))
     (should
-     (equal (cdg-rect-max-x test-rect)
-            2.0))
+     (equal (cdg-rect-max-x test-rect) 2.0))
     (should
-     (equal (cdg-rect-min-y test-rect)
-            -2.0))
+     (equal (cdg-rect-min-y test-rect) -2.0))
     (should
-     (equal (cdg-rect-max-y test-rect)
-            1.0))
+     (equal (cdg-rect-max-y test-rect) 1.0))
     (should
-     (equal (cdg-rect-width test-rect)
-            3.0))
+     (equal (cdg-rect-width test-rect) 3.0))
     (should
-     (equal (cdg-rect-height test-rect)
-            3.0))))
+     (equal (cdg-rect-height test-rect) 3.0))))
 
 (ert-deftest cdg-rect-point-test ()
   (let ((test-rect (cdg-make-rect (cdg-make-point 0 1)
@@ -233,16 +227,51 @@
     (should
      (cdg-rect-point-test test-rect (cdg-make-point 0.5 1)))))
 
+(ert-deftest cdg-contain-rect-test ()
+  (let ((test-rect (cdg-make-rect (cdg-make-point 0 1)
+                                  (cdg-make-point 1 0))))
+    (should
+     (cdg-contain-rect-test
+      test-rect
+      (cdg-make-rect (cdg-make-point 0.1 0.9)
+                     (cdg-make-point 0.9 0.1))))
+    (should-not
+     (cdg-contain-rect-test
+      test-rect
+      (cdg-make-rect (cdg-make-point -1 10)
+                     (cdg-make-point 10 -10))))
+    (should
+     (cdg-contain-rect-test test-rect test-rect))))
+
+(ert-deftest cdg-vline-ray-inter-exist-p ()
+  (should
+   (cdg-vline-ray-inter-exist-p 0 [1 1] [-1 1]))
+  (should-not
+   (cdg-vline-ray-inter-exist-p 0 [1 1] [1 1]))
+  (should
+   (cdg-vline-ray-inter-exist-p 0 [0 1] [1 1]))
+  ;; Случай параллельных прямых
+  (should-not
+   (cdg-vline-ray-inter-exist-p 0 [1 0] [0 1])))
+
+(ert-deftest cdg-hline-ray-inter-exist-p ()
+  (should
+   (cdg-hline-ray-inter-exist-p 0 [-5 -5] [1 1]))
+  (should-not
+   (cdg-hline-ray-inter-exist-p 0 [-5 -5] [1 -1]))
+  (should
+   (cdg-hline-ray-inter-exist-p 0 [0 0] [1 1]))
+  ;; Случай параллельных прямых
+  (should-not
+   (cdg-hline-ray-inter-exist-p 0 [0 1] [1 0])))
+
 (ert-deftest cdg-make-char-buffer ()
   (should
-   (equal (cdg-make-char-buffer 3 0 ?x)
-          nil))
+   (equal (cdg-make-char-buffer 3 0 ?x) nil))
   (should
-   (equal (cdg-make-char-buffer 0 3 ?x)
-          nil))
+   (equal (cdg-make-char-buffer 0 3 ?x) nil))
   (should
-   (equal (cdg-make-char-buffer 0 0 ?x)
-          nil)))
+   (equal (cdg-make-char-buffer 0 0 ?x) nil)))
 
 (ert-deftest cdg-make-char-buffer-by-string ()
   (should
