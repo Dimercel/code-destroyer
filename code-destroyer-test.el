@@ -265,6 +265,90 @@
   (should-not
    (cdg-hline-ray-inter-exist-p 0 [0 1] [1 0])))
 
+(ert-deftest cdg-hline-ray-intersection ()
+  ;; нет пересечения
+  (should-not
+   (cdg-hline-ray-intersection 0 [1 1] [1 1]))
+  ;; прямая выше
+  (should
+   (equal (cdg-hline-ray-intersection 1
+                                      [0 0]
+                                      (cdg-normalize-vec [1 1]))
+          (cdg-make-point 1 1)))
+  ;; прямая ниже
+  (should
+   (equal (cdg-hline-ray-intersection -1
+                                      [5 0]
+                                      (cdg-normalize-vec [-1 -1]))
+          (cdg-make-point 4 -1)))
+  ;; прямая и луч параллельны
+  (should-not
+   (cdg-hline-ray-intersection 0
+                               [0 1]
+                               (cdg-normalize-vec [1 0]))))
+
+(ert-deftest cdg-vline-ray-intersection ()
+  ;; нет пересечения
+  (should-not
+   (cdg-vline-ray-intersection 0 [1 1] [1 1]))
+  ;; прямая левее
+  (should
+   (equal (cdg-vline-ray-intersection 0
+                                      [7 1]
+                                      (cdg-normalize-vec [-1 0]))
+          (cdg-make-point 0 1)))
+  ;; прямая правее
+  (should
+   (equal (cdg-vline-ray-intersection 0
+                                      [-4 0]
+                                      (cdg-normalize-vec [1 0]))
+          (cdg-make-point 0 0)))
+  ;; прямая и луч параллельны
+  (should-not
+   (cdg-vline-ray-intersection 0
+                               [1 0]
+                               (cdg-normalize-vec [0 1]))))
+
+(ert-deftest cdg-rect-ray-intersection ()
+  (let ((test-rect (cdg-make-rect (cdg-make-point -1 1)
+                                  (cdg-make-point 1 -1))))
+    ;; Луч внутри прямоугольника
+    (should
+     (equal (cdg-rect-ray-intersection test-rect
+                                       [0 0]
+                                       (cdg-normalize-vec [-1 1]))
+            (cdg-make-point -1 1)))
+    ;; Луч снаружи
+    (should
+     (equal (cdg-rect-ray-intersection test-rect
+                                       [2 -1]
+                                       (cdg-normalize-vec [-1 1]))
+            (cdg-make-point 1 0)))
+    ;; пересечение отсутствует
+    (should-not
+     (cdg-rect-ray-intersection test-rect
+                                [10 0]
+                                (cdg-normalize-vec [1 0])))))
+
+(ert-deftest cdg-rect-point-side ()
+  (let ((test-rect (cdg-make-rect (cdg-make-point -1 1)
+                                  (cdg-make-point 1 -1))))
+    (should
+     (equal (cdg-rect-point-side test-rect (cdg-make-point 1 0))
+            'vertical))
+    (should
+     (equal (cdg-rect-point-side test-rect (cdg-make-point 0 1))
+            'horizontal))
+    ;; нет пересечения
+    (should-not
+     (cdg-rect-point-side test-rect (cdg-make-point 0 0)))))
+
+
+
+;;; Тесты для игровых объектов
+
+
+
 (ert-deftest cdg-make-char-buffer ()
   (should
    (equal (cdg-make-char-buffer 3 0 ?x) nil))

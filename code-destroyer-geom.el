@@ -169,10 +169,11 @@
    ray-direction должен быть нормированным"
   (if (cdg-hline-ray-inter-exist-p line-y ray-start ray-direction)
       (let ((line-dist (abs (- line-y (cdg-point-y ray-start)))))
-        (vector (+ (cdg-point-x ray-start)
-                   (* (abs (/ line-dist (aref ray-direction 1)))
-                      (aref ray-direction 0)))
-                line-y))
+        (cdg-make-point
+         (+ (cdg-point-x ray-start)
+            (* (abs (/ line-dist (aref ray-direction 1)))
+               (aref ray-direction 0)))
+         line-y))
     nil))
 
 (defun cdg-vline-ray-intersection (line-x ray-start ray-direction)
@@ -180,10 +181,11 @@
    ray-direction должен быть нормированным"
   (if (cdg-vline-ray-inter-exist-p line-x ray-start ray-direction)
       (let ((line-dist (abs (- line-x (cdg-point-x ray-start)))))
-        (vector line-x
-                (+ (cdg-point-y ray-start)
-                   (* (abs (/ line-dist (aref ray-direction 0)))
-                      (aref ray-direction 1)))))
+        (cdg-make-point
+         line-x
+         (+ (cdg-point-y ray-start)
+            (* (abs (/ line-dist (aref ray-direction 0)))
+               (aref ray-direction 1)))))
     nil))
 
 (defun cdg-rect-ray-intersection (rect ray-start ray-direction)
