@@ -222,11 +222,11 @@
       (setq *cdg-boxes*
             (remove-if-not (lambda (x)
                             (cdg-contain-rect-test (cdg-zone-box-rect *cdg-game-zone*)
-                                                    (cdg-box-rect x)))
+                                                   (cdg-box-rect x)))
                           (cdg-make-boxes-by-buf-text
                             (current-buffer)
-                            (cdg-zone-box-start *cdg-game-zone* :descart)
-                            1))))
+                            1
+                            *cdg-game-zone*))))
     (setq *cdg-platform*
           (cdg-make-platform
            (/ (cdg-rect-width (cdg-zone-rect *cdg-game-zone*)) 2.0)
@@ -249,12 +249,13 @@
     (cdg-debug (format "Начальное положение мяча: %s"
                        (cdg-ball-pos *cdg-ball*)))))
 
-(defun cdg-make-boxes-by-buf-text (buffer start-y box-size)
+(defun cdg-make-boxes-by-buf-text (buffer box-size zone)
   "Строит игровые боксы на основе текста буфера. Каждый символ текста
    рассматривается как игровой бокс. Размер бокса указывается в игровых единицах"
-  (let ((y-pos start-y) ; Текущая позиция бокса по вертикали
+  (let ((y-pos 0) ; Текущая позиция бокса по вертикали
         (box-size-dec (* box-size +cdg-game-unit+))
-        (boxes '()))
+        (boxes '())
+        (zone-height (cdg-rect-height (cdg-zone-rect zone))))
     (with-buffer buffer
       (with-win-text text-line
         (dotimes (char-inx (length text-line))
@@ -262,11 +263,11 @@
             (when (not (cdg-space-p cur-char))
               (setq boxes
                     (cons (cdg-make-box (cdg-make-point (* char-inx box-size-dec)
-                                                        y-pos)
+                                                        (- zone-height y-pos))
                                         box-size
                                         cur-char)
                           boxes)))))
-        (setq y-pos (- y-pos box-size-dec))))
+        (setq y-pos (+ y-pos box-size-dec))))
       boxes))
 
 
@@ -274,6 +275,30 @@
 ;;; Функции проверки коллизий игровых объектов
 
 
+
+(defun cdg-ball-platform-collision ()
+  (let* ((platform-rect
+          (cdg-make-rect
+           (cdg-make-point (cdg-platform-start-pos *cdg-platform*)
+                           (cdg-zone-space-start *cdg-game-zone*
+                                                 :descart))
+           (cdg-make-point (cdg-platform-end-pos *cdg-platform*)
+                           0)))
+         (cross-point (cdg-rect-ray-intersection
+                       platform-rect
+                       (cdg-ball-pos *cdg-ball*)
+                       (cdg-ball-direct *cdg-ball*))))
+    (when (and cross-point
+               (< (cdg-point-dist (cdg-ball-pos *cdg-ball*)
+                                  cross-point)
+                  +cdg-ball-step+))
+      (cdg-ball-move-to *cdg-ball* cross-point)
+      (cdg-ball-change-direct
+       *cdg-ball*
+       (cdg-mirror-vector (cdg-ball-direct *cdg-ball*)
+                          'horizontal))
+      (cdg-ball-move *cdg-ball* +cdg-gap+)
+      t)))
 
 (defun cdg-ball-boxes-collision ()
   "Определяет поведение игры при соприкосновении
@@ -349,7 +374,8 @@
 (defun cdg-collision ()
   (or
    (cdg-ball-boxes-collision)
-   (cdg-ball-limits-collision)))
+   (cdg-ball-limits-collision)
+   (cdg-ball-platform-collision)))
 
 ;; Функции отрисовки игровых объектов
 

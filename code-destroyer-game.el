@@ -89,6 +89,16 @@
 (defun cdg-platform-char (platform)
   (aref platform 3))
 
+(defun cdg-platform-start-pos (platform)
+  "Вернет позицию начала платформы"
+  (let ((half-size (/ (cdg-platform-size platform) 2.0)))
+    (- (cdg-platform-pos platform) half-size)))
+
+(defun cdg-platform-end-pos (platform)
+  "Позиция конца платформы"
+  (let ((half-size (/ (cdg-platform-size platform) 2.0)))
+    (+ (cdg-platform-pos platform) half-size)))
+
 (defun cdg-platform-move (platform step)
   "Сдвигает платформу на шаг, величиной step. Если step - положителен,
    то сдвиг вправо, иначе влево."
@@ -105,8 +115,9 @@
    для начала игры"
   (setq *cdg-ball-on-platform* t)
   (cdg-make-ball (cdg-make-point (cdg-platform-pos platform)
-                                 (* (1+ (cdg-zone-platform-start zone :row))
-                                    +cdg-game-unit+))
+                                 (+ (* (1+ (cdg-zone-platform-start zone :row))
+                                       +cdg-game-unit+)
+                                    +cdg-gap+))
                  (cdg-ball-direct ball)
                  (cdg-ball-char ball)))
 
@@ -169,30 +180,30 @@
 
 (defun cdg-zone-box-start (zone unit-type)
   (let ((result-in-rows (- (cdg-zone-status-start zone :row)
-                           (cdg-zone-status-rows))))
+                           (cdg-zone-box-rows zone))))
     (if (eq unit-type :row)
         result-in-rows
       (* result-in-rows +cdg-game-unit+))))
 
 (defun cdg-zone-space-start (zone unit-type)
   (let ((result-in-rows (- (cdg-zone-box-start zone :row)
-                           (cdg-zone-box-rows zone))))
+                           (cdg-zone-space-rows))))
     (if (eq unit-type :row)
         result-in-rows
       (* result-in-rows +cdg-game-unit+))))
 
 (defun cdg-zone-platform-start (zone unit-type)
   (let ((result-in-rows (- (cdg-zone-space-start zone :row)
-                           (cdg-zone-space-rows))))
+                           (cdg-zone-platform-rows))))
     (if (eq unit-type :row)
         result-in-rows
       (* result-in-rows +cdg-game-unit+))))
 
 (defun cdg-zone-box-rect (zone)
   (cdg-make-rect
-   (cdg-make-point 0 (cdg-zone-box-start zone :descart))
+   (cdg-make-point 0 (cdg-zone-status-start zone :descart))
    (cdg-make-point (cdg-rect-width (cdg-zone-rect zone))
-                   (cdg-zone-space-start zone :descart))))
+                   (cdg-zone-box-start zone :descart))))
 
 (defun cdg-zone-point-coord (zone point)
   "Возвращает координаты квадрата, в котором содержится точка.
