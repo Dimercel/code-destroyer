@@ -349,6 +349,33 @@
 
 
 
+(ert-deftest cdg-ball-base-functional ()
+  (let ((test-ball (cdg-make-ball (cdg-make-point 7 42)
+                                  [0.8 2]
+                                  ?x)))
+    (should
+     (equal (cdg-ball-pos test-ball)
+            (cdg-make-point 7 42)))
+    (should
+     (equal (cdg-ball-direct test-ball)
+            (cdg-normalize-vec [0.8 2])))
+    (should
+     (char-equal (cdg-ball-char test-ball)
+            ?x))))
+
+(ert-deftest cdg-ball-moving ()
+  (let ((test-ball (cdg-make-ball (cdg-make-point 0 0)
+                                  [0 1]
+                                  ?x)))
+    (cdg-ball-move test-ball 5)
+    (should
+     (equal (cdg-ball-pos test-ball)
+            (cdg-make-point 0 5)))
+    (cdg-ball-move-to test-ball (cdg-make-point 4.2 666))
+    (should
+     (equal (cdg-ball-pos test-ball)
+            (cdg-make-point 4.2 666)))))
+
 (ert-deftest cdg-make-char-buffer ()
   (should
    (equal (cdg-make-char-buffer 3 0 ?x) nil))
