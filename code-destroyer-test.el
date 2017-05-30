@@ -376,6 +376,23 @@
      (equal (cdg-ball-pos test-ball)
             (cdg-make-point 4.2 666)))))
 
+(ert-deftest cdg-box-base-functional ()
+  (let ((test-box (cdg-make-box (cdg-make-point 17 -42.42)
+                                5
+                                ?x)))
+    (should
+     (equal (cdg-box-pos test-box)
+            (cdg-make-point 17 -42.42)))
+    (should
+     (equal (cdg-box-size test-box)
+            5))
+    (should
+     (char-equal (cdg-box-char test-box)
+                 ?x))
+    (should
+     (equal (cdg-rect-width (cdg-box-rect test-box))
+            (cdg-rect-height (cdg-box-rect test-box))))))
+
 (ert-deftest cdg-make-char-buffer ()
   (should
    (equal (cdg-make-char-buffer 3 0 ?x) nil))

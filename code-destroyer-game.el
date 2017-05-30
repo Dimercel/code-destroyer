@@ -56,7 +56,7 @@
   (aref box 0))
 
 (defun cdg-box-size (box)
-  (/ (cdg-rect-width (cdg-box-rect box)) +cdg-game-unit+))
+  (truncate (/ (cdg-rect-width (cdg-box-rect box)) +cdg-game-unit+)))
 
 (defun cdg-box-char (box)
   (aref box 1))
