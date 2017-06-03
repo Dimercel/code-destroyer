@@ -393,6 +393,33 @@
      (equal (cdg-rect-width (cdg-box-rect test-box))
             (cdg-rect-height (cdg-box-rect test-box))))))
 
+(ert-deftest cdg-platform-base-functional ()
+  (let ((test-platform (cdg-make-platform 7.7 10.0 1.0 ?x)))
+    (should
+     (equal (cdg-platform-pos test-platform) 7.7))
+    (should
+     (equal (cdg-platform-size test-platform) 10.0))
+    (should
+     (equal (cdg-platform-speed test-platform) 1.0))
+    (should
+     (char-equal (cdg-platform-char test-platform) ?x))
+    (should
+     (equal (cdg-platform-start-pos test-platform) 2.7))
+    (should
+     (equal (cdg-platform-end-pos test-platform) 12.7))))
+
+(ert-deftest cdg-platform-moving ()
+  (let ((test-platform (cdg-make-platform 4.2 5.0 3.3 ?x)))
+    (cdg-platform-move test-platform -0.2)
+    (should
+     (equal (cdg-platform-pos test-platform) 4.0))
+    (cdg-platform-move test-platform 1.2)
+    (should
+     (equal (cdg-platform-pos test-platform) 5.2))
+    (cdg-platform-move-to test-platform 4.2)
+    (should
+     (equal (cdg-platform-pos test-platform) 4.2))))
+
 (ert-deftest cdg-make-char-buffer ()
   (should
    (equal (cdg-make-char-buffer 3 0 ?x) nil))
