@@ -372,7 +372,7 @@
 
 
 (defun cdg-collision ()
-  (or
+  (notevery #'null
    (cdg-ball-boxes-collision)
    (cdg-ball-limits-collision)
    (cdg-ball-platform-collision)))
