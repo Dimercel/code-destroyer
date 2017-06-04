@@ -420,6 +420,28 @@
     (should
      (equal (cdg-platform-pos test-platform) 4.2))))
 
+(ert-deftest cdg-zone-base-functional ()
+  (let ((test-zone (cdg-make-zone 100 100)))
+    (should
+     (equal (cdg-zone-rows test-zone) 100))
+    (should
+     (equal (cdg-zone-cols test-zone) 100))
+    (should
+     (equal (cdg-zone-platform-start test-zone :row) 0))
+    (should
+     (equal (cdg-zone-space-start test-zone :row)
+            (+ (cdg-zone-platform-start test-zone :row)
+               (cdg-zone-platform-rows))))
+    (should
+     (equal (cdg-zone-box-start test-zone :row)
+            (+ (cdg-zone-space-start test-zone :row)
+               (cdg-zone-space-rows))))
+    (should
+     (equal (cdg-zone-status-start test-zone :row)
+            (+ (cdg-zone-box-start test-zone :row)
+               (cdg-zone-box-rows test-zone))))))
+
+
 (ert-deftest cdg-make-char-buffer ()
   (should
    (equal (cdg-make-char-buffer 3 0 ?x) nil))
@@ -455,25 +477,3 @@
      (equal (* (cdg-char-buffer-rows test-buffer)
                (cdg-char-buffer-cols test-buffer))
             (cdg-char-buffer-size test-buffer)))))
-
-(ert-deftest cdg-platform-move ()
-  (let ((test-platform (cdg-make-platform 10.0 5.0 0.1 ?x)))
-    (cdg-platform-move test-platform 5.0)
-    (should
-     (equal (cdg-platform-pos test-platform)
-            15.0))
-    (cdg-platform-move test-platform -5.0)
-    (should
-     (equal (cdg-platform-pos test-platform)
-            10.0))))
-
-(ert-deftest cdg-platform-move-to ()
-  (let ((test-platform (cdg-make-platform 10.0 5.0 0.1 ?x)))
-    (cdg-platform-move-to test-platform 5.0)
-    (should
-     (equal (cdg-platform-pos test-platform)
-            5.0))
-    (cdg-platform-move-to test-platform -5.0)
-    (should
-     (equal (cdg-platform-pos test-platform)
-            -5.0))))
