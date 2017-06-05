@@ -441,6 +441,26 @@
             (+ (cdg-zone-box-start test-zone :row)
                (cdg-zone-box-rows test-zone))))))
 
+(ert-deftest cdg-zone-point-coord ()
+  (let ((test-zone (cdg-make-zone 10 10)))
+    (should
+     (equal (cdg-zone-point-coord
+             test-zone
+             (cdg-make-point (* 5.5 +cdg-game-unit+)
+                             (* 7.8 +cdg-game-unit+)))
+            (cdg-make-point 5 7)))
+    (should
+     (equal (cdg-zone-point-coord
+             test-zone
+             (cdg-make-point (* 11 +cdg-game-unit+)
+                             (* 11 +cdg-game-unit+)))
+            nil))
+    (should
+     (equal (cdg-zone-point-coord
+             test-zone
+             (cdg-make-point (* -11 +cdg-game-unit+)
+                             (* 11 +cdg-game-unit+)))
+            nil))))
 
 (ert-deftest cdg-make-char-buffer ()
   (should
