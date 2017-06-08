@@ -11,6 +11,9 @@
   (cdg-point-dist (cdg-make-point 0 0)
                   (cdg-make-point-by-vec vec)))
 
+(defun cdg-rect-eq (rect1 rect2)
+  (and (equal (cdg-rect-left-top rect1) (cdg-rect-left-top rect2))
+       (equal (cdg-rect-right-bottom rect1) (cdg-rect-right-bottom rect2))))
 
 
 ;;; Тесты для вспомогательных функций
@@ -461,6 +464,19 @@
              (cdg-make-point (* -11 +cdg-game-unit+)
                              (* 11 +cdg-game-unit+)))
             nil))))
+
+(ert-deftest cdg-zone-point-rect ()
+  (let ((test-zone (cdg-make-zone 10 10)))
+    (should
+     (cdg-rect-eq (cdg-zone-point-rect
+                   test-zone
+                   (cdg-make-point (* 4.2 +cdg-game-unit+)
+                                   (* 7.7 +cdg-game-unit+)))
+                  (cdg-make-rect
+                   (cdg-make-point (* 4 +cdg-game-unit+)
+                                   (* 8 +cdg-game-unit+))
+                   (cdg-make-point (* 5 +cdg-game-unit+)
+                                   (* 7 +cdg-game-unit+)))))))
 
 (ert-deftest cdg-make-char-buffer ()
   (should

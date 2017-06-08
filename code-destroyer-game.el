@@ -223,8 +223,7 @@
        (cdg-make-point (* (cdg-point-x box-pos) +cdg-game-unit+)
                        (* (1+ (cdg-point-y box-pos)) +cdg-game-unit+))
        (cdg-make-point (* (1+ (cdg-point-x box-pos)) +cdg-game-unit+)
-                       (* (cdg-point-y box-pos) +cdg-game-unit+))
-       ))))
+                       (* (cdg-point-y box-pos) +cdg-game-unit+))))))
 
 (defun cdg-zone-neighbors-rect (zone point)
   "Вернет список прямоугольников, соседствующих с тем,
