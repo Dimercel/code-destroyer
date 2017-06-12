@@ -478,6 +478,33 @@
                    (cdg-make-point (* 5 +cdg-game-unit+)
                                    (* 7 +cdg-game-unit+)))))))
 
+(ert-deftest cdg-neighbors-rect-zone-limit ()
+  (let ((test-zone (cdg-make-zone 10 10)))
+    (should
+     (equal (length (cdg-zone-neighbors-rect test-zone (cdg-make-point 1 1)))
+            2))
+    (should
+     (equal (length (cdg-zone-neighbors-rect
+                     test-zone
+                     (cdg-make-point (* 9.5 +cdg-game-unit+)
+                                     0.5)))
+            2))
+    (should
+     (equal (length (cdg-zone-neighbors-rect
+                     test-zone
+                     (cdg-make-point 0.5
+                                     (* 9.5 +cdg-game-unit+))))
+            2))
+    (should
+     (equal (length (cdg-zone-neighbors-rect
+                     test-zone
+                     (cdg-make-point (* 9.5 +cdg-game-unit+)
+                                     (* 9.5 +cdg-game-unit+))))
+            2))
+    (should
+     (equal (length (cdg-zone-neighbors-rect test-zone (cdg-make-point -1 -1)))
+            0))))
+
 (ert-deftest cdg-make-char-buffer ()
   (should
    (equal (cdg-make-char-buffer 3 0 ?x) nil))
