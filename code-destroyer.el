@@ -346,7 +346,7 @@
   При соприкосновении мяча и границы зоны, мяч должен
   вести себя как и при столкновении с боксом."
   (let ((crash-item nil))
-    (labels ((calc-cross-point (rect)
+    (cl-flet ((calc-cross-point (rect)
                                (vector rect
                                        (cdg-rect-ray-intersection
                                         rect
