@@ -505,6 +505,30 @@
      (equal (length (cdg-zone-neighbors-rect test-zone (cdg-make-point -1 -1)))
             0))))
 
+(ert-deftest cdg-squares-on-line-square-count ()
+  (let ((test-zone (cdg-make-zone 10 10)))
+    ;; Точки находятся в соседних квадратах
+    (should
+     (equal
+      (length
+       (cdg-squares-on-line test-zone
+                            (cdg-make-point (* 0.5 +cdg-game-unit+)
+                                            (* 0.5 +cdg-game-unit+))
+                            (cdg-make-point (* 1.5 +cdg-game-unit+)
+                                            (* 1.5 +cdg-game-unit+))))
+      4))
+    ;; Точки находятся в пределах одного квадрата
+    (should
+     (equal
+      (length
+       (cdg-squares-on-line test-zone
+                            (cdg-make-point (* 0.5 +cdg-game-unit+)
+                                            (* 0.5 +cdg-game-unit+))
+                            (cdg-make-point (* 0.7 +cdg-game-unit+)
+                                            (* 0.7 +cdg-game-unit+))))
+      1))))
+
+
 (ert-deftest cdg-make-char-buffer ()
   (should
    (equal (cdg-make-char-buffer 3 0 ?x) nil))
