@@ -528,6 +528,13 @@
                                             (* 0.7 +cdg-game-unit+))))
       1))))
 
+(ert-deftest cdg-zone-point-test ()
+  (let ((test-zone (cdg-make-zone 10 10)))
+    (should
+     (cdg-zone-point-test test-zone (cdg-make-point 0 0)))
+    (should-not
+     (cdg-zone-point-test test-zone (cdg-make-point -1 0.5)))))
+
 
 (ert-deftest cdg-make-char-buffer ()
   (should
