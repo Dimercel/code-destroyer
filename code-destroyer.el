@@ -448,6 +448,11 @@
       (unless *cdg-ball-on-platform*
         (unless (cdg-collision)
           (cdg-ball-move *cdg-ball* +cdg-ball-step+)))
+      (when (cdg-ball-out-p)
+        (setq *cdg-ball*
+              (cdg-return-ball-to-platform *cdg-ball*
+                                           *cdg-platform*
+                                           *cdg-game-zone*)))
       (cdg-draw-game)))
 
 
