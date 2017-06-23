@@ -421,7 +421,7 @@
                                        (cdg-box-pos box))))
       (cdg-set-char-safe char-buffer
                          (- (cdg-char-buffer-rows char-buffer)
-                            (truncate (1+ (cdg-point-y coord))))
+                            (truncate (cdg-point-y coord)))
                          (truncate (cdg-point-x coord))
                          (cdg-box-char box)))))
 

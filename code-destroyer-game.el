@@ -173,7 +173,8 @@
 
 (defun cdg-zone-status-start (zone unit-type)
   "Вернет индекс строки начала статусной зоны"
-  (let ((result-in-rows (- (cdg-zone-rows zone) 1)))
+  (let ((result-in-rows (- (cdg-zone-rows zone)
+                           (cdg-zone-status-rows zone))))
     (if (eq unit-type :row)
         result-in-rows
         (* result-in-rows +cdg-game-unit+))))
