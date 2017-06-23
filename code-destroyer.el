@@ -425,6 +425,18 @@
                          (truncate (cdg-point-x coord))
                          (cdg-box-char box)))))
 
+(defun cdg-draw-string (string row col char-buffer)
+  "Записывает строку в символьный буфер"
+  (dotimes (i (length string))
+    (cdg-set-char-safe char-buffer
+                       row
+                       (+ col i)
+                       (aref string i))))
+
+(defun cdg-draw-status (score char-buffer zone)
+  (let ((res-str (format "score: %d" score)))
+    (cdg-draw-string res-str 0 0 char-buffer)))
+
 (defun cdg-draw-game ()
   "Собственно отрисовка всех элементов игры"
   (let ((inhibit-read-only t))
@@ -438,6 +450,7 @@
     (cdg-draw-boxes *cdg-boxes* *cdg-draw-buffer* *cdg-game-zone*)
     (cdg-draw-platform *cdg-platform* *cdg-draw-buffer* *cdg-game-zone*)
     (cdg-draw-ball *cdg-ball* *cdg-draw-buffer* *cdg-game-zone*)
+    (cdg-draw-status *cdg-score* *cdg-draw-buffer* *cdg-game-zone*)
 
     (cdg-output-char-buffer *cdg-draw-buffer*)
     (beginning-of-buffer)))
