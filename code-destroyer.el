@@ -276,6 +276,10 @@
   платформа не смогла отбить мяч."
   (< (cdg-point-y (cdg-ball-pos *cdg-ball*)) 0))
 
+(defun cdg-crash-box-hook (ball box)
+  "Вызывается когда мяч разбил очередной бокс"
+  (incf *cdg-score*))
+
 
 
 ;;; Функции проверки коллизий игровых объектов
@@ -314,6 +318,7 @@
                                         *cdg-ball*
                                         +cdg-ball-step+)))
     (when crash-box
+      (cdg-crash-box-hook *cdg-ball* crash-box)
       (let ((cross-point (cdg-rect-ray-intersection
                           (cdg-box-rect crash-box)
                           (cdg-ball-pos *cdg-ball*)
