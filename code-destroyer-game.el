@@ -274,8 +274,9 @@
     (list
      (cdg-make-rect (cdg-make-point -1 zheight) ; прямоугольник слева
                     (cdg-make-point 0 0))
-     (cdg-make-rect (cdg-make-point 0 (1+ zheight)) ; прямоугольник сверху
-                    (cdg-make-point zwidth zheight))
+     (cdg-make-rect (cdg-make-point 0 zheight) ; прямоугольник сверху
+                    (cdg-make-point zwidth
+                                    (cdg-zone-status-start zone :descart)))
      (cdg-make-rect (cdg-make-point zwidth zheight) ; прямоугольник справа
                     (cdg-make-point (1+ zwidth) 0)))))
 
