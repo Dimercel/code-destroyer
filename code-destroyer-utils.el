@@ -32,7 +32,7 @@
       (+ (* row col-count) col)
     nil))
 
-(defmacro with-buffer (buffer &rest body)
+(defmacro cdg-with-buffer (buffer &rest body)
   (let ((old-buffer (gensym))
         (result (gensym)))
     `(let ((,old-buffer (current-buffer))
@@ -42,7 +42,7 @@
        (switch-to-buffer ,old-buffer)
        ,result)))
 
-(defmacro with-win-text (line-sym &rest body)
+(defmacro cdg-with-win-text (line-sym &rest body)
   "Проходит по всему тексту, видимому в окне."
   (let ((begin-pos (gensym))
         (line-inx (gensym)))
@@ -65,7 +65,7 @@
   возвращает ее длину. Учитывается только текст умещающийся в
   окне, остальная часть буфера не учитывается"
   (let ((result 0))
-    (with-win-text line-text
+    (cdg-with-win-text line-text
       (when (> (length line-text) result)
         (setq result (length line-text))))
     result))

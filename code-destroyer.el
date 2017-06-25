@@ -212,13 +212,13 @@
   "Собственно инициализация игры."
   (let ((inhibit-read-only t))
     (setq-local truncate-lines t)
-    (with-buffer *cdg-code-buffer*
+    (cdg-with-buffer *cdg-code-buffer*
                  (setq *cdg-game-zone* (cdg-make-zone-by-window (selected-window))))
     (setq *cdg-draw-buffer*
           (cdg-make-char-buffer (cdg-zone-rows *cdg-game-zone*)
                                 (cdg-zone-cols *cdg-game-zone*)
                                 +cdg-space-sym+))
-    (with-buffer *cdg-code-buffer*
+    (cdg-with-buffer *cdg-code-buffer*
       (setq *cdg-boxes*
             (remove-if-not (lambda (x)
                             (cdg-contain-rect-test (cdg-zone-box-rect *cdg-game-zone*)
@@ -256,8 +256,8 @@
         (box-size-dec (* box-size +cdg-game-unit+))
         (boxes '())
         (zone-height (cdg-rect-height (cdg-zone-rect zone))))
-    (with-buffer buffer
-      (with-win-text text-line
+    (cdg-with-buffer buffer
+      (cdg-with-win-text text-line
         (dotimes (char-inx (length text-line))
           (let ((cur-char (aref text-line char-inx)))
             (when (not (cdg-space-p cur-char))
