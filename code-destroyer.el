@@ -216,6 +216,7 @@
   "Собственно инициализация игры."
   (let ((inhibit-read-only t))
     (setq-local truncate-lines t)
+    (setq *cdg-score* 0)
     (cdg-with-buffer *cdg-code-buffer*
                  (setq *cdg-game-zone* (cdg-make-zone-by-window (selected-window))))
     (setq *cdg-draw-buffer*
