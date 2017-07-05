@@ -312,8 +312,7 @@
       (cdg-ball-move-to *cdg-ball* cross-point)
       (cdg-ball-change-direct
        *cdg-ball*
-       (cdg-mirror-vector (cdg-ball-direct *cdg-ball*)
-                          'horizontal))
+       (cdg-platform-mirror-vec *cdg-platform* cross-point))
       (cdg-ball-move *cdg-ball* +cdg-gap+)
       t)))
 
@@ -352,7 +351,6 @@
             ;; на границе пересечения
             (cdg-ball-move *cdg-ball* +cdg-gap+)))))))
 
-
 (defun cdg-ball-limits-collision ()
   "Не позволяет мячу улететь за пределы игровой зоны.
   При соприкосновении мяча и границы зоны, мяч должен
@@ -387,7 +385,6 @@
             (cdg-ball-move *cdg-ball* +cdg-gap+)
             t)
         nil))))
-
 
 (defun cdg-collision ()
   (notevery #'null
