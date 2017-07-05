@@ -118,7 +118,7 @@
                                  (+ (* (1+ (cdg-zone-platform-start zone :row))
                                        +cdg-game-unit+)
                                     +cdg-gap+))
-                 (cdg-ball-direct ball)
+                 (cdg-ball-change-direct ball *cdg-ball-init-dir*)
                  (cdg-ball-char ball)))
 
 ;; Описывает игровую зону. Представляет собой прямоугольную область в которой
