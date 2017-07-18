@@ -423,6 +423,35 @@
     (should
      (equal (cdg-platform-pos test-platform) 4.2))))
 
+(ert-deftest cdg-platform-mirror-vec ()
+  (let ((test-platform (cdg-make-platform 100.0 20.0 1.0 ?x)))
+    ;; Не корректная точка пересечения
+    (should-not
+     (cdg-platform-mirror-vec test-platform
+                              (cdg-make-point 50.0 0)
+                              0))
+    (should-not
+     (cdg-platform-mirror-vec test-platform
+                              (cdg-make-point 150.0 0)
+                              0))
+    ;; Не корректный минимальный угол
+    (should-not
+     (cdg-platform-mirror-vec test-platform
+                              (cdg-make-point 100.0 0)
+                              -10.0))
+    (should-not
+     (cdg-platform-mirror-vec test-platform
+                              (cdg-make-point 100.0 0)
+                              pi))
+    ;; Корректная работа с минимальным углом
+    (should-not
+     (equal (cdg-platform-mirror-vec test-platform
+                                     (cdg-make-point 90.5 0)
+                                     0)
+            (cdg-platform-mirror-vec test-platform
+                                     (cdg-make-point 90.5 0)
+                                     (/ pi 6.0))))))
+
 (ert-deftest cdg-zone-base-functional ()
   (let ((test-zone (cdg-make-zone 100 100)))
     (should

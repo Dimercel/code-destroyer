@@ -135,8 +135,10 @@
          (half-size (/ (cdg-platform-size platform) 2.0))
          (center-dist (abs (- plt-pos
                               (cdg-point-x cross-point))))
-         (angle (* (/ pi 2.0)
-                   (- half-size (/ center-dist half-size))))
+         (right-angle (/ pi 2.0))
+         (angle (- right-angle
+                   (* right-angle
+                      (/ center-dist half-size))))
          (valid-min-angle (and (>= min-angle 0) (<= min-angle (/ pi 2.0))))
          (valid-cross-p (and (>= (cdg-point-x cross-point)
                                  (- plt-pos half-size))
