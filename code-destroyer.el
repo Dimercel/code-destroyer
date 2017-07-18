@@ -312,7 +312,9 @@
       (cdg-ball-move-to *cdg-ball* cross-point)
       (cdg-ball-change-direct
        *cdg-ball*
-       (cdg-platform-mirror-vec *cdg-platform* cross-point))
+       (cdg-platform-mirror-vec *cdg-platform*
+                                cross-point
+                                (/ pi 10.0)))
       (cdg-ball-move *cdg-ball* +cdg-gap+)
       t)))
 

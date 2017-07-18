@@ -127,16 +127,27 @@
    центра совпадала со значением value"
   (aset platform 0 value))
 
-(defun cdg-platform-mirror-vec (platform cross-point)
+(defun cdg-platform-mirror-vec (platform cross-point min-angle)
   "Вернет направляющий вектор мяча, при условии что
-   он столкнулся с платформой в точке CROSS-POINT"
+   он столкнулся с платформой в точке CROSS-POINT.
+   Вторая координата точки не учитывается."
   (let* ((plt-pos (cdg-platform-pos platform))
          (half-size (/ (cdg-platform-size platform) 2.0))
-         (center-dist (abs (- plt-pos (cdg-point-x cross-point))))
-         (angle (* (/ pi 2.0) (/ center-dist half-size))))
-    (if (cdg-left-vline-p plt-pos cross-point)
-        (vector (- (cos angle)) (sin angle))
-      (vector (cos angle) (sin angle)))))
+         (center-dist (abs (- plt-pos
+                              (cdg-point-x cross-point))))
+         (angle (* (/ pi 2.0)
+                   (- half-size (/ center-dist half-size))))
+         (valid-min-angle (and (>= min-angle 0) (<= min-angle (/ pi 2.0))))
+         (valid-cross-p (and (>= (cdg-point-x cross-point)
+                                 (- plt-pos half-size))
+                             (<= (cdg-point-x cross-point)
+                                 (+ plt-pos half-size)))))
+    (when (< angle min-angle)
+      (setq angle min-angle))
+    (when (and valid-min-angle valid-cross-p)
+      (if (cdg-left-vline-p plt-pos cross-point)
+          (vector (- (cos angle)) (sin angle))
+        (vector (cos angle) (sin angle))))))
 
 (defun cdg-return-ball-to-platform (ball platform zone)
   "Возвращает мяч на подвижную платформу. Используется
