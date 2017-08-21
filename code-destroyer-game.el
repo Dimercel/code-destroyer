@@ -74,20 +74,25 @@
 
 ;; Набор игровых боксов. В целях повышения производительности
 ;; поиска отдельного бокса в списке, создан boxset
-(defun cdg-make-box-set (cols str)
-  (vector (/ (length str) cols)
+(defun cdg-make-box-set (str cols pos box-size)
+  (vector str
+          (/ (length str) cols)
           cols
-          str))
+          pos
+          box-size))
 
 (defun cdg-box-set-rows (box-set)
-  (aref box-set 0))
+  (aref box-set 1))
 
 (defun cdg-box-set-cols (box-set)
-  (aref box-set 1))
+  (aref box-set 2))
 
 (defun cdg-box-set-size (box-set)
   (* (cdg-box-set-cols box-set)
      (cdg-box-set-rows box-set)))
+
+(defun cdg-box-set-pos (box-set)
+  (aref box-set 3))
 
 ;; Описывает игровую платформу. Она отбивает мяч. В начале игры мяч находится на
 ;; платформе
